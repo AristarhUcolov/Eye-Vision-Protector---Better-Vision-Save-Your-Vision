@@ -1,0 +1,214 @@
+{
+  "appName": {
+    "message": "Vision Helper",
+    "description": "The name of the extension"
+  },
+  "appDesc": {
+    "message": "Browser extension to improve web accessibility for visually impaired users",
+    "description": "Description of the extension"
+  },
+  "textSettings": {
+    "message": "Text Settings",
+    "description": "Title for text settings section"
+  },
+  "fontSize": {
+    "message": "Font Size",
+    "description": "Label for font size setting"
+  },
+  "standard": {
+    "message": "Standard",
+    "description": "Label for standard font size"
+  },
+  "fontFamily": {
+    "message": "Font Family",
+    "description": "Label for font family setting"
+  },
+  "boldText": {
+    "message": "Bold Text",
+    "description": "Label for bold text setting"
+  },
+  "colorSettings": {
+    "message": "Color Settings",
+    "description": "Title for color settings section"
+  },
+  "colorTheme": {
+    "message": "Color Theme",
+    "description": "Label for color theme setting"
+  },
+  "auto": {
+    "message": "Auto (by time)",
+    "description": "Label for automatic theme setting"
+  },
+  "lightTheme": {
+    "message": "Light",
+    "description": "Label for light theme"
+  },
+  "darkTheme": {
+    "message": "Dark",
+    "description": "Label for dark theme"
+  },
+  "colorBlindMode": {
+    "message": "Color Blind Mode",
+    "description": "Label for color blind mode setting"
+  },
+  "none": {
+    "message": "None",
+    "description": "Label for no color blind mode"
+  },
+  "protanopia": {
+    "message": "Protanopia (red-blind)",
+    "description": "Label for protanopia mode"
+  },
+  "deuteranopia": {
+    "message": "Deuteranopia (green-blind)",
+    "description": "Label for deuteranopia mode"
+  },
+  "tritanopia": {
+    "message": "Tritanopia (blue-blind)",
+    "description": "Label for tritanopia mode"
+  },
+  "achromatopsia": {
+    "message": "Achromatopsia (total color blindness)",
+    "description": "Label for achromatopsia mode"
+  },
+  "accessibilityTools": {
+    "message": "Accessibility Tools",
+    "description": "Title for accessibility tools section"
+  },
+  "enableTextToSpeech": {
+    "message": "Enable Text-to-Speech",
+    "description": "Label for text-to-speech setting"
+  },
+  "enableMagnifier": {
+    "message": "Enable Text Magnifier",
+    "description": "Label for text magnifier setting"
+  },
+  "showTimeNotifications": {
+    "message": "Show Theme Change Notifications",
+    "description": "Label for theme change notifications setting"
+  },
+  "supportProject": {
+    "message": "Support the Project",
+    "description": "Title for support section"
+  },
+  "donateMessage": {
+    "message": "If you find this extension helpful, consider supporting its development:",
+    "description": "Message in donate section"
+  },
+  "buyMeCoffee": {
+    "message": "Buy Me a Coffee",
+    "description": "Label for buy me a coffee button"
+  },
+  "bankTransfer": {
+    "message": "Bank Transfer",
+    "description": "Label for bank transfer button"
+  },
+  "bankDetailsAlert": {
+    "message": "For bank transfer details, please visit our website.",
+    "description": "Alert message for bank transfer"
+  },
+  "advancedSettings": {
+    "message": "Advanced Settings",
+    "description": "Label for advanced settings button"
+  },
+  "readText": {
+    "message": "Read selected text",
+    "description": "Context menu item for reading text"
+  },
+  "magnifyText": {
+    "message": "Magnify selected text",
+    "description": "Context menu item for magnifying text"
+  },
+  "magnifierTitle": {
+    "message": "Text Magnifier",
+    "description": "Title for magnifier popup"
+  },
+  "nightThemeNotification": {
+    "message": "Switching to dark theme for night time (8 PM - 7 AM)",
+    "description": "Notification for night theme switch"
+  },
+  "dayThemeNotification": {
+    "message": "Switching to light theme for daytime (7 AM - 8 PM)",
+    "description": "Notification for day theme switch"
+  },
+  "arial": {
+    "message": "Arial",
+    "description": "Arial font name"
+  },
+  "verdana": {
+    "message": "Verdana",
+    "description": "Verdana font name"
+  },
+  "helvetica": {
+    "message": "Helvetica",
+    "description": "Helvetica font name"
+  },
+  "tahoma": {
+    "message": "Tahoma",
+    "description": "Tahoma font name"
+  },
+  "timesNewRoman": {
+    "message": "Times New Roman",
+    "description": "Times New Roman font name"
+  },
+  "georgia": {
+    "message": "Georgia",
+    "description": "Georgia font name"
+  },
+  "courierNew": {
+    "message": "Courier New",
+    "description": "Courier New font name"
+  },
+  "openDyslexic": {
+    "message": "OpenDyslexic",
+    "description": "OpenDyslexic font name"
+  },
+  "comicSans": {
+    "message": "Comic Sans MS",
+    "description": "Comic Sans MS font name"
+  },
+  "customCSS": {
+    "message": "Custom CSS",
+    "description": "Title for custom CSS section"
+  },
+  "customCSSDescription": {
+    "message": "Add your own CSS rules to further customize website appearance:",
+    "description": "Description for custom CSS"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button label"
+  },
+  "keyboardShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Title for keyboard shortcuts section"
+  },
+  "toggleDarkMode": {
+    "message": "Toggle Dark Mode:",
+    "description": "Label for dark mode shortcut"
+  },
+  "increaseFontSize": {
+    "message": "Increase Font Size:",
+    "description": "Label for increase font size shortcut"
+  },
+  "decreaseFontSize": {
+    "message": "Decrease Font Size:",
+    "description": "Label for decrease font size shortcut"
+  },
+  "resetSettings": {
+    "message": "Reset Settings",
+    "description": "Title for reset settings section"
+  },
+  "resetWarning": {
+    "message": "Warning: This will restore all settings to their default values.",
+    "description": "Warning for reset settings"
+  },
+  "resetToDefaults": {
+    "message": "Reset to Defaults",
+    "description": "Reset button label"
+  },
+  "resetConfirm": {
+    "message": "Are you sure you want to reset all settings to default values?",
+    "description": "Confirmation message for reset"
+  }
+}

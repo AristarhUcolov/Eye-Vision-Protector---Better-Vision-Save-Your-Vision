@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "Eye Vision Protection - Better Vision & Safe Your Vision",
+  "version": "0.0.1",
+  "description": "Helps people with visual impairments browse the web comfortably",
+  "default_locale": "en",
+  "icons": {
+    "16": "popup/images/icon16.png",
+    "48": "popup/images/icon48.png",
+    "128": "popup/images/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "popup/images/icon16.png",
+      "48": "popup/images/icon48.png",
+      "128": "popup/images/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "contextMenus",
+    "notifications",
+    "tts"
+  ],
+  "commands": {
+    "toggle-dark-mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D",
+        "mac": "Command+Shift+D"
+      },
+      "description": "Toggle dark mode"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["popup/images/*", "options/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

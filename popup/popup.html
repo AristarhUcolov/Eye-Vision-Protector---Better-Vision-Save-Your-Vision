@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision Helper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="app-title">Vision Helper</h1>
+      <div class="language-switcher">
+        <select id="language-selector">
+          <option value="en">English</option>
+          <option value="ru">Русский</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="section">
+      <h2 data-i18n="textSettings">Text Settings</h2>
+      <div class="control-group">
+        <label for="font-size" data-i18n="fontSize">Font Size</label>
+        <div class="slider-container">
+          <span class="slider-value" id="font-size-value">0</span>
+          <input type="range" id="font-size" min="0" max="10" value="0" step="1">
+          <div class="slider-labels">
+            <span data-i18n="standard">Standard</span>
+            <span>+10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="font-family" data-i18n="fontFamily">Font Family</label>
+        <select id="font-family">
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Helvetica">Helvetica</option>
+          <option value="Tahoma">Tahoma</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier New</option>
+          <option value="OpenDyslexic">OpenDyslexic</option>
+          <option value="Comic Sans MS">Comic Sans MS</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="bold-text">
+          <span class="checkmark"></span>
+          <span class="checkbox-label" data-i18n="boldText">Bold Text</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="colorSettings">Color Settings</h2>
+      <div class="control-group">
+        <label for="dark-mode" data-i18n="colorTheme">Color Theme</label>
+        <select id="dark-mode">
+          <option value="auto" data-i18n="auto">Auto (by time)</option>
+          <option value="light" data-i18n="lightTheme">Light</option>
+          <option value="dark" data-i18n="darkTheme">Dark</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="color-blind-mode" data-i18n="colorBlindMode">Color Blind Mode</label>
+        <select id="color-blind-mode">
+          <option value="none" data-i18n="none">None</option>
+          <option value="protanopia" data-i18n="protanopia">Protanopia (red-blind)</option>
+          <option value="deuteranopia" data-i18n="deuteranopia">Deuteranopia (green-blind)</option>
+          <option value="tritanopia" data-i18n="tritanopia">Tritanopia (blue-blind)</option>
+          <option value="achromatopsia" data-i18n="achromatopsia">Achromatopsia (total color blindness)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="accessibilityTools">Accessibility Tools</h2>
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="text-to-speech" checked>
+          <span class="checkmark"></span>
+          <span class="checkbox-label" data-i18n="enableTextToSpeech">Enable Text-to-Speech</span>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label for="speech-volume" data-i18n="speechVolume">Speech Volume</label>
+        <div class="slider-container">
+          <span class="slider-value" id="speech-volume-value">100%</span>
+          <input type="range" id="speech-volume" min="0" max="100" value="100" step="1">
+          <div class="slider-labels">
+            <span>0%</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="magnifier-enabled" checked>
+          <span class="checkmark"></span>
+          <span class="checkbox-label" data-i18n="enableMagnifier">Enable Text Magnifier</span>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="show-time-notification" checked>
+          <span class="checkmark"></span>
+          <span class="checkbox-label" data-i18n="showTimeNotifications">Show Theme Change Notifications</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section donate-section">
+      <h2 data-i18n="supportProject">Support the Project</h2>
+      <p data-i18n="donateMessage">If you find this extension helpful, consider supporting its development:</p>
+      <div class="donate-buttons">
+        <button id="buy-me-coffee" class="donate-button" data-i18n="buyMeCoffee">Buy Me a Coffee</button>
+        <button id="bank-transfer" class="donate-button" data-i18n="bankTransfer">Bank Transfer</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="options-button" data-i18n="advancedSettings">Advanced Settings</button>
+      <p class="version">v0.0.1</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

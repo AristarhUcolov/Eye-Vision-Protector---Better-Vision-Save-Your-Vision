@@ -1,0 +1,214 @@
+{
+  "appName": {
+    "message": "Помощник зрения",
+    "description": "Название расширения"
+  },
+  "appDesc": {
+    "message": "Расширение для улучшения доступности веб-страниц для людей с нарушениями зрения",
+    "description": "Описание расширения"
+  },
+  "textSettings": {
+    "message": "Настройки текста",
+    "description": "Заголовок раздела настроек текста"
+  },
+  "fontSize": {
+    "message": "Размер шрифта",
+    "description": "Метка для настройки размера шрифта"
+  },
+  "standard": {
+    "message": "Стандарт",
+    "description": "Метка для стандартного размера шрифта"
+  },
+  "fontFamily": {
+    "message": "Шрифт",
+    "description": "Метка для настройки шрифта"
+  },
+  "boldText": {
+    "message": "Жирный текст",
+    "description": "Метка для настройки жирного текста"
+  },
+  "colorSettings": {
+    "message": "Настройки цвета",
+    "description": "Заголовок раздела настроек цвета"
+  },
+  "colorTheme": {
+    "message": "Цветовая тема",
+    "description": "Метка для настройки цветовой темы"
+  },
+  "auto": {
+    "message": "Авто (по времени)",
+    "description": "Метка для автоматической темы"
+  },
+  "lightTheme": {
+    "message": "Светлая",
+    "description": "Метка для светлой темы"
+  },
+  "darkTheme": {
+    "message": "Тёмная",
+    "description": "Метка для тёмной темы"
+  },
+  "colorBlindMode": {
+    "message": "Режим для дальтоников",
+    "description": "Метка для режима дальтонизма"
+  },
+  "none": {
+    "message": "Нет",
+    "description": "Метка для отсутствия режима дальтонизма"
+  },
+  "protanopia": {
+    "message": "Протанопия (не видят красный)",
+    "description": "Метка для режима протанопии"
+  },
+  "deuteranopia": {
+    "message": "Дейтеранопия (не видят зелёный)",
+    "description": "Метка для режима дейтеранопии"
+  },
+  "tritanopia": {
+    "message": "Тританопия (не видят синий)",
+    "description": "Метка для режима тританопии"
+  },
+  "achromatopsia": {
+    "message": "Ахроматопсия (полная цветовая слепота)",
+    "description": "Метка для режима ахроматопсии"
+  },
+  "accessibilityTools": {
+    "message": "Инструменты доступности",
+    "description": "Заголовок раздела инструментов доступности"
+  },
+  "enableTextToSpeech": {
+    "message": "Озвучивание текста",
+    "description": "Метка для настройки озвучивания текста"
+  },
+  "enableMagnifier": {
+    "message": "Лупа для текста",
+    "description": "Метка для настройки лупы для текста"
+  },
+  "showTimeNotifications": {
+    "message": "Уведомления о смене темы",
+    "description": "Метка для уведомлений о смене темы"
+  },
+  "supportProject": {
+    "message": "Поддержать проект",
+    "description": "Заголовок раздела поддержки"
+  },
+  "donateMessage": {
+    "message": "Если это расширение вам помогает, рассмотрите возможность поддержать его разработку:",
+    "description": "Сообщение в разделе поддержки"
+  },
+  "buyMeCoffee": {
+    "message": "Купить кофе",
+    "description": "Метка для кнопки 'Купить кофе'"
+  },
+  "bankTransfer": {
+    "message": "Банковский перевод",
+    "description": "Метка для кнопки банковского перевода"
+  },
+  "bankDetailsAlert": {
+    "message": "Для получения реквизитов банковского перевода посетите наш сайт.",
+    "description": "Сообщение с реквизитами банковского перевода"
+  },
+  "advancedSettings": {
+    "message": "Дополнительные настройки",
+    "description": "Метка для кнопки дополнительных настроек"
+  },
+  "readText": {
+    "message": "Прочитать выделенный текст",
+    "description": "Пункт контекстного меню для чтения текста"
+  },
+  "magnifyText": {
+    "message": "Увеличить выделенный текст",
+    "description": "Пункт контекстного меню для увеличения текста"
+  },
+  "magnifierTitle": {
+    "message": "Лупа для текста",
+    "description": "Заголовок окна лупы"
+  },
+  "nightThemeNotification": {
+    "message": "Переключение на тёмную тему для ночного времени (20:00 - 7:00)",
+    "description": "Уведомление о переключении на ночную тему"
+  },
+  "dayThemeNotification": {
+    "message": "Переключение на светлую тему для дневного времени (7:00 - 20:00)",
+    "description": "Уведомление о переключении на дневную тему"
+  },
+  "arial": {
+    "message": "Arial",
+    "description": "Название шрифта Arial"
+  },
+  "verdana": {
+    "message": "Verdana",
+    "description": "Название шрифта Verdana"
+  },
+  "helvetica": {
+    "message": "Helvetica",
+    "description": "Название шрифта Helvetica"
+  },
+  "tahoma": {
+    "message": "Tahoma",
+    "description": "Название шрифта Tahoma"
+  },
+  "timesNewRoman": {
+    "message": "Times New Roman",
+    "description": "Название шрифта Times New Roman"
+  },
+  "georgia": {
+    "message": "Georgia",
+    "description": "Название шрифта Georgia"
+  },
+  "courierNew": {
+    "message": "Courier New",
+    "description": "Название шрифта Courier New"
+  },
+  "openDyslexic": {
+    "message": "OpenDyslexic",
+    "description": "Название шрифта OpenDyslexic"
+  },
+  "comicSans": {
+    "message": "Comic Sans MS",
+    "description": "Название шрифта Comic Sans MS"
+  },
+  "customCSS": {
+    "message": "Пользовательский CSS",
+    "description": "Заголовок раздела пользовательского CSS"
+  },
+  "customCSSDescription": {
+    "message": "Добавьте свои CSS-правила для дополнительной настройки внешнего вида сайтов:",
+    "description": "Описание для пользовательского CSS"
+  },
+  "save": {
+    "message": "Сохранить",
+    "description": "Метка кнопки сохранения"
+  },
+  "keyboardShortcuts": {
+    "message": "Горячие клавиши",
+    "description": "Заголовок раздела горячих клавиш"
+  },
+  "toggleDarkMode": {
+    "message": "Переключить тёмную тему:",
+    "description": "Метка для горячей клавиши тёмной темы"
+  },
+  "increaseFontSize": {
+    "message": "Увеличить размер шрифта:",
+    "description": "Метка для горячей клавиши увеличения шрифта"
+  },
+  "decreaseFontSize": {
+    "message": "Уменьшить размер шрифта:",
+    "description": "Метка для горячей клавиши уменьшения шрифта"
+  },
+  "resetSettings": {
+    "message": "Сброс настроек",
+    "description": "Заголовок раздела сброса настроек"
+  },
+  "resetWarning": {
+    "message": "Внимание: Это восстановит все настройки до значений по умолчанию.",
+    "description": "Предупреждение при сбросе настроек"
+  },
+  "resetToDefaults": {
+    "message": "Сбросить настройки",
+    "description": "Метка кнопки сброса настроек"
+  },
+  "resetConfirm": {
+    "message": "Вы уверены, что хотите сбросить все настройки до значений по умолчанию?",
+    "description": "Подтверждение сброса настроек"
+  }
+}
