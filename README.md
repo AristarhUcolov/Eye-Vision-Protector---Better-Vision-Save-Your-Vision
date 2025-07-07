@@ -1,8 +1,8 @@
 # Eye Vision Protector - Better Vision & Save Your Vision
 
-![Extension Icon](popup/images/icon128.png)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/your-extension-id?color=blue&label=Chrome%20Web%20Store)](https://chrome.google.com/webstore/detail/your-extension-id)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ehcjdpbcpedjfhnmemneoahjglfnbcik?color=blue&label=Chrome%20Web%20Store)](https://chrome.google.com/webstore/detail/ehcjdpbcpedjfhnmemneoahjglfnbcik)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+![Extension Icon](popup/images/icon128.png)
 
 ## 🌍 Languages
 - [Русский](#русский)
