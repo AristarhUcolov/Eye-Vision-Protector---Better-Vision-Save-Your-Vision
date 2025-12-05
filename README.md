@@ -14,14 +14,21 @@
 - [🌍 Languages](#-languages)
   - [Русский](#русский)
   - [English](#english)
-- [Features](#-key-features)
-- [Installation](#-installation)
-- [Browser Compatibility](#-browser-compatibility)
-- [Screenshots](#-screenshots)
-- [FAQ](#-faq)
-- [Contributing](#-contributing)
-- [Development](#-development)
-- [Support](#-support-the-project)
+- [Русский - Russian Version](#русский)
+  - [Основные возможности](#-основные-возможности)
+  - [Установка](#-установка)
+  - [Совместимость с браузерами](#-совместимость-с-браузерами)
+  - [FAQ](#-часто-задаваемые-вопросы-faq)
+  - [Вклад в проект](#-вклад-в-проект)
+  - [Разработка](#-разработка)
+- [English - English Version](#english)
+  - [Key Features](#-key-features)
+  - [Installation](#-installation)
+  - [Browser Compatibility](#-browser-compatibility)
+  - [FAQ](#-frequently-asked-questions-faq)
+  - [Contributing](#-contributing)
+  - [Development](#-development)
+- [Support the Project](#-support-the-project)
 - [License](#-license)
 
 ## 🌍 Languages
@@ -325,7 +332,7 @@ Recipient: Aristarh Ucolov
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-**GPL v3** - Free for personal and educational use. This is free software: you are free to change and redistribute it under the terms of the GNU GPL version 3 or later.
+**GPL v3** - This is free software: you are free to use, change, and redistribute it under the terms of the GNU GPL version 3 or later. This includes both commercial and non-commercial use, provided that any modifications or derivative works also remain open source under the same license (copyleft requirement).
 
 ---
 
