@@ -6,13 +6,22 @@ chrome.runtime.onInstalled.addListener(() => {
     boldText: false,
     selectedFont: 'Arial',
     darkMode: 'auto',
+    darkModeIntensity: 85,
+    blueLightFilter: false,
+    blueLightIntensity: 50,
+    focusMode: false,
     colorBlindMode: 'none',
     textToSpeech: true,
     speechVolume: 100,
     magnifierEnabled: true,
     showTimeNotification: true,
     currentTheme: 'light',
-    language: chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en'
+    language: chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en',
+    usageStats: {
+      totalTimeUsed: 0,
+      themeSwitches: 0,
+      lastUsed: Date.now()
+    }
   });
 
   // Создание контекстного меню

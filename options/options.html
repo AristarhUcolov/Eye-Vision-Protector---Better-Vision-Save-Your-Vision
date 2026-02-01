@@ -9,47 +9,130 @@
 <body>
   <div class="container">
     <header>
-      <h1 id="app-title">Vision Helper - Advanced Settings</h1>
+      <h1 id="app-title">⚙️ Vision Helper - Advanced Settings</h1>
       <div class="language-switcher">
         <select id="language-selector">
-          <option value="en">English</option>
-          <option value="ru">Русский</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="ru">🇷🇺 Русский</option>
         </select>
       </div>
     </header>
 
-    <div class="section">
-      <h2 data-i18n="customCSS">Custom CSS</h2>
-      <p data-i18n="customCSSDescription">Add your own CSS rules to further customize website appearance:</p>
-      <textarea id="custom-css" rows="10"></textarea>
-      <button id="save-css" data-i18n="save">Save</button>
+    <div class="tabs">
+      <button class="tab-button active" data-tab="general">📋 <span data-i18n="general">General</span></button>
+      <button class="tab-button" data-tab="custom-css">🎨 <span data-i18n="customCSS">Custom CSS</span></button>
+      <button class="tab-button" data-tab="sites">🌐 <span data-i18n="siteManagement">Site Management</span></button>
+      <button class="tab-button" data-tab="data">💾 <span data-i18n="dataManagement">Data Management</span></button>
     </div>
 
-    <div class="section">
-      <h2 data-i18n="keyboardShortcuts">Keyboard Shortcuts</h2>
-      <div class="shortcut-item">
-        <span data-i18n="toggleDarkMode">Toggle Dark Mode:</span>
-        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>
+    <!-- General Tab -->
+    <div class="tab-content active" id="general">
+      <div class="section">
+        <h2 data-i18n="keyboardShortcuts">⌨️ Keyboard Shortcuts</h2>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item">
+            <span data-i18n="toggleDarkMode">Toggle Dark Mode</span>
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span data-i18n="increaseFontSize">Increase Font Size</span>
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span data-i18n="decreaseFontSize">Decrease Font Size</span>
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>-</kbd>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="shortcut-item">
-        <span data-i18n="increaseFontSize">Increase Font Size:</span>
-        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd>
+
+      <div class="section">
+        <h2 data-i18n="statistics">📊 Usage Statistics</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="total-time">0h</div>
+            <div class="stat-label" data-i18n="totalActiveTime">Total Active Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-value" id="total-switches">0</div>
+            <div class="stat-label" data-i18n="totalSwitches">Theme Switches</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value" id="last-used">Never</div>
+            <div class="stat-label" data-i18n="lastUsed">Last Used</div>
+          </div>
+        </div>
       </div>
-      <div class="shortcut-item">
-        <span data-i18n="decreaseFontSize">Decrease Font Size:</span>
-        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>-</kbd>
+
+      <div class="section danger-zone">
+        <h2 data-i18n="resetSettings">🔄 Reset Settings</h2>
+        <p data-i18n="resetWarning">Warning: This will restore all settings to their default values.</p>
+        <button id="reset-settings" class="btn-danger" data-i18n="resetToDefaults">Reset to Defaults</button>
       </div>
     </div>
 
-    <div class="section">
-      <h2 data-i18n="resetSettings">Reset Settings</h2>
-      <p data-i18n="resetWarning">Warning: This will restore all settings to their default values.</p>
-      <button id="reset-settings" data-i18n="resetToDefaults">Reset to Defaults</button>
+    <!-- Custom CSS Tab -->
+    <div class="tab-content" id="custom-css">
+      <div class="section">
+        <h2 data-i18n="customCSSTitle">🎨 Custom CSS Rules</h2>
+        <p data-i18n="customCSSDescription">Add your own CSS rules to further customize website appearance. Changes apply to all websites:</p>
+        <div class="css-editor">
+          <textarea id="custom-css-editor" rows="15" placeholder="/* Your custom CSS here */\nbody {\n  /* Example */\n}"></textarea>
+        </div>
+        <div class="button-group">
+          <button id="save-css" class="btn-primary" data-i18n="save">💾 Save CSS</button>
+          <button id="clear-css" class="btn-secondary" data-i18n="clear">🗑️ Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Site Management Tab -->
+    <div class="tab-content" id="sites">
+      <div class="section">
+        <h2 data-i18n="disabledSites">🚫 Disabled Sites</h2>
+        <p data-i18n="disabledSitesDescription">The extension won't work on these websites:</p>
+        <div class="site-list" id="disabled-sites-list">
+          <div class="empty-state">
+            <span>No disabled sites yet</span>
+          </div>
+        </div>
+        <div class="add-site-form">
+          <input type="text" id="new-site" placeholder="example.com" />
+          <button id="add-site" class="btn-primary" data-i18n="addSite">➕ Add Site</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Management Tab -->
+    <div class="tab-content" id="data">
+      <div class="section">
+        <h2 data-i18n="exportSettings">📤 Export Settings</h2>
+        <p data-i18n="exportDescription">Export your current settings to a file for backup or transfer:</p>
+        <button id="export-settings" class="btn-primary" data-i18n="exportBtn">📤 Export Settings</button>
+      </div>
+
+      <div class="section">
+        <h2 data-i18n="importSettings">📥 Import Settings</h2>
+        <p data-i18n="importDescription">Import previously exported settings:</p>
+        <input type="file" id="import-file" accept=".json" style="display: none;" />
+        <button id="import-settings" class="btn-primary" data-i18n="importBtn">📥 Import Settings</button>
+      </div>
     </div>
 
     <div class="footer">
-      <p class="version">v0.0.1</p>
+      <p class="version">v1.0.0</p>
+      <p class="copyright">© 2026 Eye Vision Protector</p>
     </div>
+
+    <div id="toast" class="toast"></div>
   </div>
 
   <script src="options.js"></script>

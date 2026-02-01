@@ -37,7 +37,8 @@ function applyStyles(settings) {
   if (!settings) {
     chrome.storage.sync.get([
       'fontSize', 'boldText', 'selectedFont', 
-      'currentTheme', 'colorBlindMode'
+      'currentTheme', 'colorBlindMode', 'blueLightFilter',
+      'blueLightIntensity', 'focusMode'
     ], (data) => {
       applyStyles(data);
     });
@@ -77,6 +78,45 @@ function applyStyles(settings) {
   if (settings.colorBlindMode && settings.colorBlindMode !== 'none') {
     cssRules += getColorBlindFilter(settings.colorBlindMode);
   }
+  
+  // Фильтр синего света
+  if (settings.blueLightFilter) {
+    const intensity = settings.blueLightIntensity || 50;
+    const orangeTint = Math.floor(255 * (intensity / 100));
+    cssRules += `
+      html::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, ${255 - orangeTint}, 0, ${intensity / 200});
+        pointer-events: none;
+        z-index: 9999999;
+        mix-blend-mode: multiply;
+      }
+    `;
+  }
+  
+  // Режим фокуса - затемняет элементы кроме тех, на которых фокус
+  if (settings.focusMode) {
+    cssRules += `
+      body * {
+        transition: opacity 0.3s ease, filter 0.3s ease;
+      }
+      body *:not(:hover):not(:focus):not(:focus-within) {
+        opacity: 0.7;
+        filter: blur(1px);
+      }
+      body *:hover,
+      body *:focus,
+      body *:focus-within {
+        opacity: 1 !important;
+        filter: none !important;
+      }
+    `;
+  }
 
   styleElement.textContent = cssRules;
   document.head.appendChild(styleElement);
@@ -107,66 +147,60 @@ function applyTheme(theme) {
   const styleElement = document.getElementById('vision-helper-theme') || document.createElement('style');
   styleElement.id = 'vision-helper-theme';
   
-  if (theme === 'dark') {
-    styleElement.textContent = `
-      :root {
-        --vh-bg-color: #1a1a1a !important;
-        --vh-text-color: #e0e0e0 !important;
-        --vh-link-color: #7db4ff !important;
-        --vh-input-bg: #2d2d2d !important;
-        --vh-input-text: #e0e0e0 !important;
-        --vh-border-color: #444 !important;
-      }
-      body, html {
-        background-color: var(--vh-bg-color) !important;
-        color: var(--vh-text-color) !important;
-      }
-      a {
-        color: var(--vh-link-color) !important;
-      }
-      input, textarea, select, button {
-        background-color: var(--vh-input-bg) !important;
-        color: var(--vh-input-text) !important;
-        border-color: var(--vh-border-color) !important;
-      }
-    `;
+  // Получаем настройку интенсивности темной темы
+  chrome.storage.sync.get(['darkModeIntensity'], (data) => {
+    const intensity = data.darkModeIntensity || 85;
     
-    document.documentElement.classList.add('dark-theme');
-    document.documentElement.classList.remove('light-theme');
-  } else {
-    styleElement.textContent = `
-      :root {
-        --vh-bg-color: #ffffff !important;
-        --vh-text-color: #000000 !important;
-        --vh-link-color: #0066cc !important;
-        --vh-input-bg: #ffffff !important;
-        --vh-input-text: #000000 !important;
-        --vh-border-color: #ccc !important;
-      }
-      body, html {
-        background-color: var(--vh-bg-color) !important;
-        color: var(--vh-text-color) !important;
-      }
-      a {
-        color: var(--vh-link-color) !important;
-      }
-      input, textarea, select, button {
-        background-color: var(--vh-input-bg) !important;
-        color: var(--vh-input-text) !important;
-        border-color: var(--vh-border-color) !important;
-      }
-    `;
+    if (theme === 'dark') {
+      // Используем инвертирующий фильтр вместо прямого изменения цветов
+      styleElement.textContent = `
+        html {
+          filter: invert(${intensity}%) hue-rotate(180deg);
+        }
+        
+        /* Исключаем элементы, которые не должны инвертироваться */
+        img:not(.vision-helper-magnifier *),
+        picture,
+        video,
+        canvas,
+        iframe,
+        [style*="background-image"],
+        .vision-helper-magnifier {
+          filter: invert(${intensity}%) hue-rotate(180deg) !important;
+        }
+        
+        /* Дополнительно защищаем медиа-контент */
+        img[src*=".jpg"],
+        img[src*=".jpeg"],
+        img[src*=".png"],
+        img[src*=".gif"],
+        img[src*=".webp"],
+        img[src*=".svg"] {
+          filter: invert(${intensity}%) hue-rotate(180deg) !important;
+        }
+      `;
+      
+      document.documentElement.classList.add('dark-theme');
+      document.documentElement.classList.remove('light-theme');
+      document.documentElement.setAttribute('data-vision-helper-theme', 'dark');
+    } else {
+      styleElement.textContent = `
+        html {
+          filter: none;
+        }
+      `;
+      
+      document.documentElement.classList.add('light-theme');
+      document.documentElement.classList.remove('dark-theme');
+      document.documentElement.setAttribute('data-vision-helper-theme', 'light');
+    }
     
-    document.documentElement.classList.add('light-theme');
-    document.documentElement.classList.remove('dark-theme');
-  }
-  
-  if (!document.getElementById('vision-helper-theme')) {
-    document.head.appendChild(styleElement);
-  }
-  
-  applySiteSpecificThemeFixes();
-  updateMagnifierTheme();
+    if (!document.getElementById('vision-helper-theme')) {
+      document.head.appendChild(styleElement);
+    }
+    
+    updateMagnifierTheme();
+  });
 }
 
 // Показать лупу для текста
@@ -329,40 +363,7 @@ function getColorBlindFilter(type) {
   `;
 }
 
-// Применение исправлений для конкретных сайтов
-function applySiteSpecificThemeFixes() {
-  const fixStyle = document.getElementById('vision-helper-site-fixes') || document.createElement('style');
-  fixStyle.id = 'vision-helper-site-fixes';
-  
-  fixStyle.textContent = `
-    .dark-theme .header, 
-    .dark-theme .navbar,
-    .dark-theme .footer {
-      background-color: #121212 !important;
-      border-color: #333 !important;
-    }
-    
-    .dark-theme .card,
-    .dark-theme .panel,
-    .dark-theme .modal-content {
-      background-color: #2d2d2d !important;
-      color: #e0e0e0 !important;
-      border-color: #444 !important;
-    }
-    
-    .dark-theme .ytd-app {
-      background-color: #1a1a1a !important;
-    }
-    
-    .dark-theme .twitter-tweet {
-      background-color: #2d2d2d !important;
-    }
-  `;
-  
-  if (!document.getElementById('vision-helper-site-fixes')) {
-    document.head.appendChild(fixStyle);
-  }
-}
+// Эта функция больше не нужна с новым подходом к темной теме
 
 // Добавляем SVG фильтры для дальтонизма
 const svgFilters = document.createElement('svg');

@@ -10,26 +10,61 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Проверка текущей темы
   checkCurrentTheme();
+  
+  // Загрузка статистики
+  loadStats();
+  
+  // Обновление статистики каждые 30 секунд
+  setInterval(loadStats, 30000);
 });
+
+// Загрузка статистики использования
+function loadStats() {
+  chrome.storage.sync.get(['usageStats'], function(data) {
+    const stats = data.usageStats || { totalTimeUsed: 0, themeSwitches: 0 };
+    
+    // Конвертируем минуты в часы
+    const hours = Math.floor(stats.totalTimeUsed / 60);
+    const minutes = stats.totalTimeUsed % 60;
+    
+    let timeStr = hours > 0 ? `${hours}h` : `${minutes}m`;
+    document.getElementById('active-time').textContent = timeStr;
+    document.getElementById('theme-switches').textContent = stats.themeSwitches || 0;
+  });
+}
 
 // Загрузка текущих настроек
 function loadSettings() {
   chrome.storage.sync.get([
     'fontSize', 'boldText', 'selectedFont', 
-    'darkMode', 'colorBlindMode', 'textToSpeech',
+    'darkMode', 'darkModeIntensity', 'blueLightFilter', 'blueLightIntensity',
+    'colorBlindMode', 'textToSpeech', 'focusMode',
     'magnifierEnabled', 'showTimeNotification', 'language',
-    'currentTheme'
+    'currentTheme', 'speechVolume'
   ], function(data) {
     document.getElementById('font-size').value = data.fontSize || 0;
     document.getElementById('font-size-value').textContent = data.fontSize || 0;
     document.getElementById('bold-text').checked = data.boldText || false;
     document.getElementById('font-family').value = data.selectedFont || 'Arial';
     document.getElementById('dark-mode').value = data.darkMode || 'auto';
+    document.getElementById('dark-mode-intensity').value = data.darkModeIntensity || 85;
+    document.getElementById('dark-intensity-value').textContent = (data.darkModeIntensity || 85) + '%';
+    document.getElementById('blue-light-filter').checked = data.blueLightFilter || false;
+    document.getElementById('blue-light-intensity').value = data.blueLightIntensity || 50;
+    document.getElementById('blue-intensity-value').textContent = (data.blueLightIntensity || 50) + '%';
     document.getElementById('color-blind-mode').value = data.colorBlindMode || 'none';
     document.getElementById('text-to-speech').checked = data.textToSpeech !== false;
+    document.getElementById('speech-volume').value = data.speechVolume || 100;
+    document.getElementById('speech-volume-value').textContent = (data.speechVolume || 100) + '%';
+    document.getElementById('focus-mode').checked = data.focusMode || false;
     document.getElementById('magnifier-enabled').checked = data.magnifierEnabled !== false;
     document.getElementById('show-time-notification').checked = data.showTimeNotification !== false;
     document.getElementById('language-selector').value = data.language || 'en';
+    
+    // Показать/скрыть дополнительные настройки
+    updateDarkIntensityVisibility(data.darkMode);
+    updateBlueLightIntensityVisibility(data.blueLightFilter);
+    updateSpeechVolumeVisibility(data.textToSpeech !== false);
     
     // Применяем тему сразу при загрузке
     if (data.currentTheme === 'dark') {
@@ -38,6 +73,28 @@ function loadSettings() {
       document.body.classList.remove('dark');
     }
   });
+}
+
+// Обновление видимости настройки интенсивности темной темы
+function updateDarkIntensityVisibility(mode) {
+  const group = document.getElementById('dark-intensity-group');
+  if (mode === 'dark' || mode === 'auto') {
+    group.style.display = 'block';
+  } else {
+    group.style.display = 'none';
+  }
+}
+
+// Обновление видимости настройки интенсивности синего фильтра
+function updateBlueLightIntensityVisibility(enabled) {
+  const group = document.getElementById('blue-light-intensity-group');
+  group.style.display = enabled ? 'block' : 'none';
+}
+
+// Обновление видимости настройки громкости речи
+function updateSpeechVolumeVisibility(enabled) {
+  const group = document.getElementById('speech-volume-group');
+  group.style.display = enabled ? 'block' : 'none';
 }
 
 // Инициализация перевода
@@ -113,6 +170,23 @@ function updateSelectOptionsTranslation(language) {
 
 // Установка обработчиков событий
 function setupEventListeners() {
+  // Быстрое переключение темы
+  document.getElementById('quick-toggle-theme').addEventListener('click', function() {
+    chrome.storage.sync.get(['currentTheme'], function(data) {
+      const newTheme = data.currentTheme === 'dark' ? 'light' : 'dark';
+      chrome.storage.sync.set({ currentTheme: newTheme, darkMode: newTheme }, function() {
+        // Обновление статистики
+        updateThemeSwitchStats();
+        applyChanges();
+        if (newTheme === 'dark') {
+          document.body.classList.add('dark');
+        } else {
+          document.body.classList.remove('dark');
+        }
+      });
+    });
+  });
+  
   // Размер шрифта
   document.getElementById('font-size').addEventListener('input', function() {
     const value = this.value;
@@ -122,20 +196,7 @@ function setupEventListeners() {
   
   // Жирный текст
   document.getElementById('bold-text').addEventListener('change', function() {
-    chrome.storage.sync.set({ boldText: this.checked }, function() {
-      applyChanges();
-      // Принудительное обновление темы для немедленного применения изменений
-      chrome.storage.sync.get(['currentTheme'], function(data) {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, {
-              action: "applyTheme",
-              theme: data.currentTheme
-            });
-          });
-        });
-      });
-    });
+    chrome.storage.sync.set({ boldText: this.checked }, applyChanges);
   });
   
   // Шрифт
@@ -146,13 +207,15 @@ function setupEventListeners() {
   // Темная тема
   document.getElementById('dark-mode').addEventListener('change', function() {
     const mode = this.value;
+    updateDarkIntensityVisibility(mode);
+    
     chrome.storage.sync.set({ darkMode: mode }, function() {
       if (mode === 'auto') {
         checkTimeForTheme();
       } else {
         chrome.storage.sync.set({ currentTheme: mode }, function() {
+          updateThemeSwitchStats();
           applyChanges();
-          // Обновляем тему popup
           if (mode === 'dark') {
             document.body.classList.add('dark');
           } else {
@@ -163,6 +226,32 @@ function setupEventListeners() {
     });
   });
   
+  // Интенсивность темной темы
+  document.getElementById('dark-mode-intensity').addEventListener('input', function() {
+    const value = this.value;
+    document.getElementById('dark-intensity-value').textContent = value + '%';
+    chrome.storage.sync.set({ darkModeIntensity: parseInt(value) }, applyChanges);
+  });
+  
+  // Фильтр синего света
+  document.getElementById('blue-light-filter').addEventListener('change', function() {
+    const enabled = this.checked;
+    updateBlueLightIntensityVisibility(enabled);
+    chrome.storage.sync.set({ blueLightFilter: enabled }, applyChanges);
+  });
+  
+  // Интенсивность фильтра синего света
+  document.getElementById('blue-light-intensity').addEventListener('input', function() {
+    const value = this.value;
+    document.getElementById('blue-intensity-value').textContent = value + '%';
+    chrome.storage.sync.set({ blueLightIntensity: parseInt(value) }, applyChanges);
+  });
+  
+  // Режим фокуса
+  document.getElementById('focus-mode').addEventListener('change', function() {
+    chrome.storage.sync.set({ focusMode: this.checked }, applyChanges);
+  });
+  
   // Режим для дальтоников
   document.getElementById('color-blind-mode').addEventListener('change', function() {
     chrome.storage.sync.set({ colorBlindMode: this.value }, applyChanges);
@@ -170,9 +259,18 @@ function setupEventListeners() {
   
   // Озвучивание текста
   document.getElementById('text-to-speech').addEventListener('change', function() {
-    chrome.storage.sync.set({ textToSpeech: this.checked }, function() {
+    const enabled = this.checked;
+    updateSpeechVolumeVisibility(enabled);
+    chrome.storage.sync.set({ textToSpeech: enabled }, function() {
       chrome.runtime.sendMessage({ action: "updateContextMenu" });
     });
+  });
+  
+  // Громкость речи
+  document.getElementById('speech-volume').addEventListener('input', function() {
+    const value = this.value;
+    document.getElementById('speech-volume-value').textContent = value + '%';
+    chrome.storage.sync.set({ speechVolume: parseInt(value) });
   });
   
   // Лупа для текста
@@ -187,19 +285,13 @@ function setupEventListeners() {
     chrome.storage.sync.set({ showTimeNotification: this.checked });
   });
   
-  // Кнопка "Купить кофе"
+  // Donation buttons
   document.getElementById('buy-me-coffee').addEventListener('click', function() {
-    chrome.tabs.create({ url: 'https://buymeacoffee.com/aristarh.ucolov' });
+    chrome.tabs.create({ url: 'https://www.buymeacoffee.com/yourusername' });
   });
   
-  // Кнопка "Банковский перевод"
   document.getElementById('bank-transfer').addEventListener('click', function() {
-    chrome.storage.sync.get(['language'], function(data) {
-      const message = data.language === 'ru' ? 
-        "Для банковского перевода используйте реквизиты: \n\nБанк: Moldindconbank\nНомер карты: 4028 1202 1106 0963\nПолучатель: Аристарх Уколов" :
-        "For bank transfer use details: \n\nBank: Moldindconbank\nCard number: 4028 1202 1106 0963\nRecipient: Aristarh Ucolov";
-      alert(message);
-    });
+    alert('Bank transfer details:\nBank: Your Bank\nAccount: Your Account Number\nThank you for your support!');
   });
   
   // Кнопка "Дополнительные настройки"
@@ -223,6 +315,17 @@ function setupEventListeners() {
         }
       });
     });
+  });
+}
+
+// Обновление статистики переключений темы
+function updateThemeSwitchStats() {
+  chrome.storage.sync.get(['usageStats'], function(data) {
+    const stats = data.usageStats || { totalTimeUsed: 0, themeSwitches: 0, lastUsed: Date.now() };
+    stats.themeSwitches = (stats.themeSwitches || 0) + 1;
+    stats.lastUsed = Date.now();
+    chrome.storage.sync.set({ usageStats: stats });
+    loadStats();
   });
 }
 
@@ -255,6 +358,8 @@ function checkTimeForTheme() {
 function getEnglishTranslations() {
   return {
     "appName": "Vision Helper",
+    "activeTime": "Active",
+    "switches": "Switches",
     "textSettings": "Text Settings",
     "fontSize": "Font Size",
     "standard": "Standard",
@@ -265,6 +370,10 @@ function getEnglishTranslations() {
     "auto": "Auto (by time)",
     "lightTheme": "Light",
     "darkTheme": "Dark",
+    "darkIntensity": "Dark Mode Intensity",
+    "blueLightFilter": "Blue Light Filter",
+    "blueIntensity": "Filter Intensity",
+    "focusMode": "Focus Mode (Dim Distractions)",
     "colorBlindMode": "Color Blind Mode",
     "none": "None",
     "protanopia": "Protanopia (red-blind)",
@@ -272,11 +381,12 @@ function getEnglishTranslations() {
     "tritanopia": "Tritanopia (blue-blind)",
     "achromatopsia": "Achromatopsia (total color blindness)",
     "accessibilityTools": "Accessibility Tools",
-    "enableTextToSpeech": "Enable Text-to-Speech",
-    "enableMagnifier": "Enable Text Magnifier",
-    "showTimeNotifications": "Show Theme Change Notifications",
-    "supportProject": "Support the Project",
-    "donateMessage": "If you find this extension helpful, consider supporting its development:",
+    "enableTextToSpeech": "Text-to-Speech",
+    "speechVolume": "Speech Volume",
+    "enableMagnifier": "Text Magnifier",
+    "showTimeNotifications": "Theme Change Notifications",
+    "supportProject": "Support Project",
+    "donateMessage": "If you find this extension helpful, consider supporting its development!",
     "buyMeCoffee": "Buy Me a Coffee",
     "bankTransfer": "Bank Transfer",
     "advancedSettings": "Advanced Settings"
@@ -286,6 +396,8 @@ function getEnglishTranslations() {
 function getRussianTranslations() {
   return {
     "appName": "Помощник зрения",
+    "activeTime": "Активен",
+    "switches": "Переключ.",
     "textSettings": "Настройки текста",
     "fontSize": "Размер шрифта",
     "standard": "Стандарт",
@@ -296,6 +408,10 @@ function getRussianTranslations() {
     "auto": "Авто (по времени)",
     "lightTheme": "Светлая",
     "darkTheme": "Тёмная",
+    "darkIntensity": "Интенсивность тёмной темы",
+    "blueLightFilter": "Фильтр синего света",
+    "blueIntensity": "Интенсивность фильтра",
+    "focusMode": "Режим фокуса (затемнение отвлекающих элементов)",
     "colorBlindMode": "Режим для дальтоников",
     "none": "Нет",
     "protanopia": "Протанопия (не видят красный)",
@@ -304,11 +420,12 @@ function getRussianTranslations() {
     "achromatopsia": "Ахроматопсия (полная цветовая слепота)",
     "accessibilityTools": "Инструменты доступности",
     "enableTextToSpeech": "Озвучивание текста",
+    "speechVolume": "Громкость речи",
     "enableMagnifier": "Лупа для текста",
     "showTimeNotifications": "Уведомления о смене темы",
     "supportProject": "Поддержать проект",
-    "donateMessage": "Если это расширение вам помогает, рассмотрите возможность поддержать его разработку:",
-    "buyMeCoffee": "Купить кофе",
+    "donateMessage": "Если это расширение помогает вам, рассмотрите возможность поддержки его разработки!",
+    "buyMeCoffee": "Купить мне кофе",
     "bankTransfer": "Банковский перевод",
     "advancedSettings": "Дополнительные настройки"
   };
