@@ -313,6 +313,8 @@ function closeMagnifier() {
 
 function startDrag(e) {
   if (e.button !== 0) return;
+  e.preventDefault();
+  e.stopPropagation();
   
   isDragging = true;
   const rect = magnifierElement.getBoundingClientRect();
@@ -321,22 +323,39 @@ function startDrag(e) {
   
   document.addEventListener('mousemove', drag);
   document.addEventListener('mouseup', stopDrag);
-  magnifierElement.style.cursor = 'grabbing';
+  if (magnifierElement) {
+    magnifierElement.style.cursor = 'grabbing';
+  }
 }
 
 function drag(e) {
-  if (!isDragging) return;
+  if (!isDragging || !magnifierElement) return;
+  e.preventDefault();
+  e.stopPropagation();
   
-  magnifierElement.style.left = `${e.clientX - dragOffsetX}px`;
-  magnifierElement.style.top = `${e.clientY - dragOffsetY}px`;
+  const newX = e.clientX - dragOffsetX;
+  const newY = e.clientY - dragOffsetY;
+  
+  // Ограничиваем перемещение в пределах окна
+  const maxX = window.innerWidth - magnifierElement.offsetWidth;
+  const maxY = window.innerHeight - magnifierElement.offsetHeight;
+  
+  magnifierElement.style.left = `${Math.max(0, Math.min(newX, maxX))}px`;
+  magnifierElement.style.top = `${Math.max(0, Math.min(newY, maxY))}px`;
   magnifierElement.style.right = 'auto';
 }
 
-function stopDrag() {
+function stopDrag(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   isDragging = false;
   document.removeEventListener('mousemove', drag);
   document.removeEventListener('mouseup', stopDrag);
-  magnifierElement.style.cursor = 'default';
+  if (magnifierElement) {
+    magnifierElement.style.cursor = 'default';
+  }
 }
 
 // Фильтры для разных типов дальтонизма

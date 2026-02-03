@@ -287,11 +287,11 @@ function setupEventListeners() {
   
   // Donation buttons
   document.getElementById('buy-me-coffee').addEventListener('click', function() {
-    chrome.tabs.create({ url: 'https://www.buymeacoffee.com/yourusername' });
+    chrome.tabs.create({ url: 'https://buymeacoffee.com/aristarh.ucolov' });
   });
   
   document.getElementById('bank-transfer').addEventListener('click', function() {
-    alert('Bank transfer details:\nBank: Your Bank\nAccount: Your Account Number\nThank you for your support!');
+    alert('Bank transfer details:\nBank: Moldindconbank\nCard: 4028 1202 1106 0963\nRecipient: Aristarh Ucolov\n\nThank you for your support!');
   });
   
   // Кнопка "Дополнительные настройки"

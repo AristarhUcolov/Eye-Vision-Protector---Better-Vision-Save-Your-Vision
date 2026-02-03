@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](.)
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE)
-[![Chrome](https://img.shields.io/badge/Chrome-Extension-success.svg)](https://chrome.google.com/webstore)
+[![Chrome](https://img.shields.io/badge/Chrome-Extension-success.svg)](https://chromewebstore.google.com/detail/eye-vision-protection-bet/ehcjdpbcpedjfhnmemneoahjglfnbcik)
 
 <div align="center">
   <img src="popup/images/icon128.png" alt="Extension Icon" width="128" height="128">
@@ -66,7 +66,7 @@
 ### 📥 Installation
 
 #### From Chrome Web Store
-1. Visit Chrome Web Store
+1. Visit [Chrome Web Store](https://chromewebstore.google.com/detail/eye-vision-protection-bet/ehcjdpbcpedjfhnmemneoahjglfnbcik)
 2. Click "Add to Chrome"
 3. Enjoy!
 
@@ -146,7 +146,7 @@ A: No, everything is local.
 ### 📥 Установка
 
 #### Из Chrome Web Store
-1. Посетите Chrome Web Store
+1. Посетите [Chrome Web Store](https://chromewebstore.google.com/detail/eye-vision-protection-bet/ehcjdpbcpedjfhnmemneoahjglfnbcik)
 2. Нажмите "Добавить в Chrome"
 3. Наслаждайтесь!
 
