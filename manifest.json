@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Eye Vision Protection - Better Vision & Save Your Vision",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Comprehensive eye protection and web accessibility extension. Features smart dark mode, blue light filter, text-to-speech, magnifier, focus mode, and more. Perfect for users with visual impairments.",
   "default_locale": "en",
   "icons": {
