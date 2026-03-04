@@ -17,6 +17,14 @@ chrome.runtime.onInstalled.addListener(() => {
     showTimeNotification: true,
     currentTheme: 'light',
     language: chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en',
+    // New features
+    readingRuler: false,
+    breakReminder: false,
+    breakInterval: 20, // minutes
+    pageDimmer: false,
+    pageDimmerIntensity: 30,
+    highContrast: false,
+    activePreset: 'none',
     usageStats: {
       totalTimeUsed: 0,
       themeSwitches: 0,
@@ -151,12 +159,193 @@ chrome.commands.onCommand.addListener((command) => {
       const newTheme = data.currentTheme === 'dark' ? 'light' : 'dark';
       chrome.storage.sync.set({ currentTheme: newTheme }, () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: "applyTheme",
-            theme: newTheme
+          if (tabs[0]) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              action: "applyTheme",
+              theme: newTheme
+            });
+          }
+        });
+        updateBadge();
+      });
+    });
+  } else if (command === 'toggle-reading-ruler') {
+    chrome.storage.sync.get(['readingRuler'], (data) => {
+      const newValue = !data.readingRuler;
+      chrome.storage.sync.set({ readingRuler: newValue }, () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              action: "toggleReadingRuler",
+              enabled: newValue
+            });
+          }
+        });
+        updateBadge();
+      });
+    });
+  } else if (command === 'toggle-blue-light') {
+    chrome.storage.sync.get(['blueLightFilter'], (data) => {
+      const newValue = !data.blueLightFilter;
+      chrome.storage.sync.set({ blueLightFilter: newValue }, () => {
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
           });
         });
+        updateBadge();
+      });
+    });
+  } else if (command === 'toggle-focus-mode') {
+    chrome.storage.sync.get(['focusMode'], (data) => {
+      const newValue = !data.focusMode;
+      chrome.storage.sync.set({ focusMode: newValue }, () => {
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
+          });
+        });
+        updateBadge();
       });
     });
   }
+});
+
+// Update badge with active filters count
+function updateBadge() {
+  chrome.storage.sync.get([
+    'currentTheme', 'blueLightFilter', 'focusMode', 
+    'readingRuler', 'pageDimmer', 'highContrast'
+  ], (data) => {
+    let count = 0;
+    if (data.currentTheme === 'dark') count++;
+    if (data.blueLightFilter) count++;
+    if (data.focusMode) count++;
+    if (data.readingRuler) count++;
+    if (data.pageDimmer) count++;
+    if (data.highContrast) count++;
+    
+    if (count > 0) {
+      chrome.action.setBadgeText({ text: count.toString() });
+      chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+    } else {
+      chrome.action.setBadgeText({ text: '' });
+    }
+  });
+}
+
+// Break reminder system
+let breakReminderInterval = null;
+
+function startBreakReminder() {
+  chrome.storage.sync.get(['breakReminder', 'breakInterval', 'language'], (data) => {
+    if (breakReminderInterval) {
+      clearInterval(breakReminderInterval);
+      breakReminderInterval = null;
+    }
+    
+    if (data.breakReminder) {
+      const intervalMs = (data.breakInterval || 20) * 60 * 1000;
+      
+      breakReminderInterval = setInterval(() => {
+        const isRussian = data.language === 'ru';
+        const title = isRussian ? '⏰ Время отдохнуть!' : '⏰ Time for a break!';
+        const message = isRussian 
+          ? 'Правило 20-20-20: Посмотрите на объект в 20 футах (6 метров) в течение 20 секунд.' 
+          : '20-20-20 Rule: Look at something 20 feet (6 meters) away for 20 seconds.';
+        
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'popup/images/icon48.png',
+          title: title,
+          message: message,
+          priority: 2
+        });
+      }, intervalMs);
+    }
+  });
+}
+
+// Apply preset configurations
+function applyPreset(presetName) {
+  const presets = {
+    'reading': {
+      fontSize: 3,
+      darkMode: 'light',
+      blueLightFilter: true,
+      blueLightIntensity: 30,
+      focusMode: false,
+      readingRuler: true,
+      pageDimmer: false,
+      highContrast: false
+    },
+    'night': {
+      fontSize: 2,
+      darkMode: 'dark',
+      darkModeIntensity: 90,
+      blueLightFilter: true,
+      blueLightIntensity: 70,
+      focusMode: false,
+      readingRuler: false,
+      pageDimmer: true,
+      pageDimmerIntensity: 40,
+      highContrast: false
+    },
+    'work': {
+      fontSize: 1,
+      darkMode: 'auto',
+      blueLightFilter: true,
+      blueLightIntensity: 40,
+      focusMode: true,
+      readingRuler: false,
+      pageDimmer: false,
+      highContrast: false
+    },
+    'presentation': {
+      fontSize: 5,
+      darkMode: 'light',
+      blueLightFilter: false,
+      focusMode: false,
+      readingRuler: false,
+      pageDimmer: false,
+      highContrast: true
+    }
+  };
+  
+  const preset = presets[presetName];
+  if (preset) {
+    preset.activePreset = presetName;
+    chrome.storage.sync.set(preset, () => {
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
+        });
+      });
+      updateBadge();
+      checkTimeForTheme();
+    });
+  }
+}
+
+// Listen for preset messages
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "applyPreset") {
+    applyPreset(request.preset);
+  } else if (request.action === "updateBadge") {
+    updateBadge();
+  } else if (request.action === "startBreakReminder") {
+    startBreakReminder();
+  }
+});
+
+// Initialize badge and break reminder
+updateBadge();
+startBreakReminder();
+
+// Update on storage changes
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.breakReminder || changes.breakInterval) {
+    startBreakReminder();
+  }
+  updateBadge();
 });

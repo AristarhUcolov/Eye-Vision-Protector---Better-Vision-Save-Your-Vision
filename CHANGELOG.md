@@ -2,6 +2,70 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-03-04
+
+### 🚀 Major Feature Update
+
+Expanding accessibility with new productivity and health features!
+
+### ✨ Added
+- **Reading Ruler** - Horizontal guide bar that follows your cursor to help maintain reading focus
+  - Toggle with checkbox or keyboard shortcut (Ctrl+Shift+R)
+  - Smooth animation and adjustable position
+  - Perfect for people with dyslexia or reading difficulties
+
+- **Break Reminder System** - Automated reminders following the 20-20-20 rule
+  - Customizable interval (10-60 minutes)
+  - Notifications to remind you to rest your eyes
+  - Helps prevent digital eye strain
+  
+- **Page Dimmer** - Global page brightness control
+  - Adjustable intensity (0-80%)
+  - Reduces overall screen brightness without affecting contrast
+  - Great for late-night browsing
+  
+- **High Contrast Mode** - Maximizes readability for low vision users
+  - Forces high contrast colors across all websites
+  - Removes shadows and transparency effects
+  - Compliant with WCAG accessibility standards
+  
+- **Quick Presets** - One-click configuration profiles
+  - 📖 **Reading** - Optimized for long reading sessions
+  - 🌙 **Night** - Maximum eye protection for evening use
+  - 💼 **Work** - Balanced settings for productivity
+  - 🎥 **Presentation** - High visibility for presentations
+  - Visual indicator shows active preset
+  
+- **Keyboard Shortcuts** - Enhanced keyboard control
+  - Ctrl+Shift+D - Toggle dark mode
+  - Ctrl+Shift+R - Toggle reading ruler
+  - Ctrl+Shift+B - Toggle blue light filter
+  - Ctrl+Shift+F - Toggle focus mode
+  - Customizable in browser settings
+  
+- **Badge Indicator** - Extension icon shows count of active filters
+  - Quick visual feedback without opening popup
+  - Purple badge with number of enabled features
+  - Auto-updates when settings change
+
+### 🎨 Improved
+- **UI Organization** - Added Quick Presets section at the top of popup
+- **Performance** - Optimized filter application and style updates
+- **Context Menu** - Better integration with browser context menus
+- **Error Handling** - Added robust error handling for all new features
+
+### 🔧 Technical
+- Added `readingRuler`, `breakReminder`, `pageDimmer`, `highContrast` settings
+- Implemented badge update system in background worker
+- Added preset configuration system with 4 default profiles
+- Enhanced keyboard command handling
+- Improved storage management for new settings
+
+### 📚 Documentation
+- Updated all translations (EN/RU) for new features
+- Added tooltips and descriptions
+- Enhanced keyboard shortcuts documentation
+
 ## [1.0.0] - 2026-02-01
 
 ### 🎉 Major Release

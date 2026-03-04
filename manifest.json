@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Eye Vision Protection - Better Vision & Save Your Vision",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Comprehensive eye protection and web accessibility extension. Features smart dark mode, blue light filter, text-to-speech, magnifier, focus mode, and more. Perfect for users with visual impairments.",
   "default_locale": "en",
   "icons": {
@@ -45,6 +45,27 @@
         "mac": "Command+Shift+D"
       },
       "description": "Toggle dark mode"
+    },
+    "toggle-reading-ruler": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "Command+Shift+R"
+      },
+      "description": "Toggle reading ruler"
+    },
+    "toggle-blue-light": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Toggle blue light filter"
+    },
+    "toggle-focus-mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Toggle focus mode"
     }
   },
   "web_accessible_resources": [

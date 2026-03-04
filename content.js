@@ -6,6 +6,8 @@ let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 let currentZoom = 24; // базовый размер шрифта
+let readingRulerElement = null;
+let readingRulerEnabled = false;
 
 // Применение стилей при загрузке страницы
 applyStyles();
@@ -21,6 +23,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     showMagnifier(request.text);
   } else if (request.action === "applyCustomCSS") {
     applyCustomCSS(request.css);
+  } else if (request.action === "toggleReadingRuler") {
+    toggleReadingRuler(request.enabled);
   } else if (request.action === "getCurrentSettings") {
     chrome.storage.sync.get([
       'fontSize', 'boldText', 'selectedFont', 
@@ -38,9 +42,14 @@ function applyStyles(settings) {
     chrome.storage.sync.get([
       'fontSize', 'boldText', 'selectedFont', 
       'currentTheme', 'colorBlindMode', 'blueLightFilter',
-      'blueLightIntensity', 'focusMode'
+      'blueLightIntensity', 'focusMode', 'readingRuler',
+      'pageDimmer', 'pageDimmerIntensity', 'highContrast'
     ], (data) => {
       applyStyles(data);
+      // Initialize reading ruler if enabled
+      if (data.readingRuler && !readingRulerEnabled) {
+        toggleReadingRuler(true);
+      }
     });
     return;
   }
@@ -114,6 +123,50 @@ function applyStyles(settings) {
       body *:focus-within {
         opacity: 1 !important;
         filter: none !important;
+      }
+    `;
+  }
+  
+  // Page Dimmer - затемнение всей страницы
+  if (settings.pageDimmer) {
+    const intensity = settings.pageDimmerIntensity || 30;
+    cssRules += `
+      html::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, ${intensity / 100});
+        pointer-events: none;
+        z-index: 9999998;
+      }
+    `;
+  }
+  
+  // High Contrast Mode
+  if (settings.highContrast) {
+    cssRules += `
+      * {
+        text-shadow: none !important;
+        box-shadow: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      a {
+        color: #0000EE !important;
+        text-decoration: underline !important;
+      }
+      a:visited {
+        color: #551A8B !important;
+      }
+      button, input, select, textarea {
+        border: 2px solid black !important;
+        background: white !important;
+        color: black !important;
       }
     `;
   }
@@ -447,3 +500,60 @@ magnifierStyles.textContent = `
   }
 `;
 document.head.appendChild(magnifierStyles);
+
+// ==================== READING RULER ====================
+
+function createReadingRuler() {
+  if (readingRulerElement) return;
+  
+  readingRulerElement = document.createElement('div');
+  readingRulerElement.className = 'vision-helper-reading-ruler';
+  readingRulerElement.style.cssText = `
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(255, 255, 100, 0.3);
+    border-top: 2px solid rgba(255, 200, 0, 0.8);
+    border-bottom: 2px solid rgba(255, 200, 0, 0.8);
+    pointer-events: none;
+    z-index: 9999997;
+    transition: top 0.1s ease-out;
+    display: none;
+  `;
+  
+  document.body.appendChild(readingRulerElement);
+  
+  // Add mousemove listener
+  document.addEventListener('mousemove', updateReadingRulerPosition);
+}
+
+function updateReadingRulerPosition(e) {
+  if (!readingRulerElement || !readingRulerEnabled) return;
+  
+  const rulerHeight = 40;
+  const top = e.clientY - (rulerHeight / 2);
+  readingRulerElement.style.top = `${top}px`;
+}
+
+function toggleReadingRuler(enabled) {
+  readingRulerEnabled = enabled;
+  
+  if (enabled) {
+    if (!readingRulerElement) {
+      createReadingRuler();
+    }
+    readingRulerElement.style.display = 'block';
+  } else {
+    if (readingRulerElement) {
+      readingRulerElement.style.display = 'none';
+    }
+  }
+}
+
+// Initialize reading ruler if already enabled
+chrome.storage.sync.get(['readingRuler'], (data) => {
+  if (data.readingRuler) {
+    toggleReadingRuler(true);
+  }
+});

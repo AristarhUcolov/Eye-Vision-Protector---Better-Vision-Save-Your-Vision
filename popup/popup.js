@@ -40,7 +40,9 @@ function loadSettings() {
     'darkMode', 'darkModeIntensity', 'blueLightFilter', 'blueLightIntensity',
     'colorBlindMode', 'textToSpeech', 'focusMode',
     'magnifierEnabled', 'showTimeNotification', 'language',
-    'currentTheme', 'speechVolume'
+    'currentTheme', 'speechVolume', 'readingRuler', 'breakReminder',
+    'breakInterval', 'pageDimmer', 'pageDimmerIntensity', 'highContrast',
+    'activePreset'
   ], function(data) {
     document.getElementById('font-size').value = data.fontSize || 0;
     document.getElementById('font-size-value').textContent = data.fontSize || 0;
@@ -61,10 +63,33 @@ function loadSettings() {
     document.getElementById('show-time-notification').checked = data.showTimeNotification !== false;
     document.getElementById('language-selector').value = data.language || 'en';
     
+    // New features
+    document.getElementById('reading-ruler').checked = data.readingRuler || false;
+    document.getElementById('break-reminder').checked = data.breakReminder || false;
+    document.getElementById('break-interval').value = data.breakInterval || 20;
+    document.getElementById('break-interval-value').textContent = (data.breakInterval || 20) + ' min';
+    document.getElementById('page-dimmer').checked = data.pageDimmer || false;
+    document.getElementById('page-dimmer-intensity').value = data.pageDimmerIntensity || 30;
+    document.getElementById('dimmer-intensity-value').textContent = (data.pageDimmerIntensity || 30) + '%';
+    document.getElementById('high-contrast').checked = data.highContrast || false;
+    
+    // Highlight active preset
+    if (data.activePreset && data.activePreset !== 'none') {
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        if (btn.dataset.preset === data.activePreset) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+    
     // Показать/скрыть дополнительные настройки
     updateDarkIntensityVisibility(data.darkMode);
     updateBlueLightIntensityVisibility(data.blueLightFilter);
     updateSpeechVolumeVisibility(data.textToSpeech !== false);
+    updatePageDimmerIntensityVisibility(data.pageDimmer);
+    updateBreakIntervalVisibility(data.breakReminder);
     
     // Применяем тему сразу при загрузке
     if (data.currentTheme === 'dark') {
@@ -94,6 +119,18 @@ function updateBlueLightIntensityVisibility(enabled) {
 // Обновление видимости настройки громкости речи
 function updateSpeechVolumeVisibility(enabled) {
   const group = document.getElementById('speech-volume-group');
+  group.style.display = enabled ? 'block' : 'none';
+}
+
+// Обновление видимости настройки интенсивности затемнения
+function updatePageDimmerIntensityVisibility(enabled) {
+  const group = document.getElementById('page-dimmer-intensity-group');
+  group.style.display = enabled ? 'block' : 'none';
+}
+
+// Обновление видимости настройки интервала напоминаний
+function updateBreakIntervalVisibility(enabled) {
+  const group = document.getElementById('break-interval-group');
   group.style.display = enabled ? 'block' : 'none';
 }
 
@@ -285,6 +322,85 @@ function setupEventListeners() {
     chrome.storage.sync.set({ showTimeNotification: this.checked });
   });
   
+  // Reading Ruler
+  document.getElementById('reading-ruler').addEventListener('change', function() {
+    const enabled = this.checked;
+    chrome.storage.sync.set({ readingRuler: enabled }, () => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: "toggleReadingRuler",
+            enabled: enabled
+          });
+        }
+      });
+      chrome.runtime.sendMessage({ action: "updateBadge" });
+    });
+  });
+  
+  // Break Reminder
+  document.getElementById('break-reminder').addEventListener('change', function() {
+    const enabled = this.checked;
+    updateBreakIntervalVisibility(enabled);
+    chrome.storage.sync.set({ breakReminder: enabled }, () => {
+      chrome.runtime.sendMessage({ action: "startBreakReminder" });
+    });
+  });
+  
+  // Break Interval
+  document.getElementById('break-interval').addEventListener('input', function() {
+    const value = this.value;
+    document.getElementById('break-interval-value').textContent = value + ' min';
+    chrome.storage.sync.set({ breakInterval: parseInt(value) }, () => {
+      chrome.runtime.sendMessage({ action: "startBreakReminder" });
+    });
+  });
+  
+  // Page Dimmer
+  document.getElementById('page-dimmer').addEventListener('change', function() {
+    const enabled = this.checked;
+    updatePageDimmerIntensityVisibility(enabled);
+    chrome.storage.sync.set({ pageDimmer: enabled }, () => {
+      applyChanges();
+      chrome.runtime.sendMessage({ action: "updateBadge" });
+    });
+  });
+  
+  // Page Dimmer Intensity
+  document.getElementById('page-dimmer-intensity').addEventListener('input', function() {
+    const value = this.value;
+    document.getElementById('dimmer-intensity-value').textContent = value + '%';
+    chrome.storage.sync.set({ pageDimmerIntensity: parseInt(value) }, applyChanges);
+  });
+  
+  // High Contrast
+  document.getElementById('high-contrast').addEventListener('change', function() {
+    chrome.storage.sync.set({ highContrast: this.checked }, () => {
+      applyChanges();
+      chrome.runtime.sendMessage({ action: "updateBadge" });
+    });
+  });
+  
+  // Quick Presets
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const preset = this.dataset.preset;
+      
+      // Remove active class from all buttons
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      // Add active class to clicked button
+      this.classList.add('active');
+      
+      // Apply preset
+      chrome.runtime.sendMessage({ action: "applyPreset", preset: preset });
+      
+      // Reload settings after a short delay to show updated values
+      setTimeout(() => {
+        loadSettings();
+      }, 300);
+    });
+  });
+  
   // Donation buttons
   document.getElementById('buy-me-coffee').addEventListener('click', function() {
     chrome.tabs.create({ url: 'https://buymeacoffee.com/aristarh.ucolov' });
@@ -380,11 +496,23 @@ function getEnglishTranslations() {
     "deuteranopia": "Deuteranopia (green-blind)",
     "tritanopia": "Tritanopia (blue-blind)",
     "achromatopsia": "Achromatopsia (total color blindness)",
+    "quickPresets": "Quick Presets",
+    "presetReading": "Reading",
+    "presetNight": "Night",
+    "presetWork": "Work",
+    "presetPresentation": "Presentation",
     "accessibilityTools": "Accessibility Tools",
+    "readingRuler": "Reading Ruler",
+    "highContrast": "High Contrast",
+    "pageDimmer": "Page Dimmer",
+    "dimmerIntensity": "Dimmer Intensity",
+    "breakReminder": "Break Reminder (20-20-20)",
+    "breakInterval": "Reminder Interval (minutes)",
     "enableTextToSpeech": "Text-to-Speech",
     "speechVolume": "Speech Volume",
     "enableMagnifier": "Text Magnifier",
     "showTimeNotifications": "Theme Change Notifications",
+    "focusMode": "Focus Mode (Dim Distractions)",
     "supportProject": "Support Project",
     "donateMessage": "If you find this extension helpful, consider supporting its development!",
     "buyMeCoffee": "Buy Me a Coffee",
@@ -411,6 +539,11 @@ function getRussianTranslations() {
     "darkIntensity": "Интенсивность тёмной темы",
     "blueLightFilter": "Фильтр синего света",
     "blueIntensity": "Интенсивность фильтра",
+    "quickPresets": "Быстрые режимы",
+    "presetReading": "Чтение",
+    "presetNight": "Ночь",
+    "presetWork": "Работа",
+    "presetPresentation": "Презентация",
     "focusMode": "Режим фокуса (затемнение отвлекающих элементов)",
     "colorBlindMode": "Режим для дальтоников",
     "none": "Нет",
@@ -419,6 +552,12 @@ function getRussianTranslations() {
     "tritanopia": "Тританопия (не видят синий)",
     "achromatopsia": "Ахроматопсия (полная цветовая слепота)",
     "accessibilityTools": "Инструменты доступности",
+    "readingRuler": "Линейка для чтения",
+    "highContrast": "Высокая контрастность",
+    "pageDimmer": "Затемнение страницы",
+    "dimmerIntensity": "Интенсивность затемнения",
+    "breakReminder": "Напоминание о перерыве (20-20-20)",
+    "breakInterval": "Интервал напоминаний (минуты)",
     "enableTextToSpeech": "Озвучивание текста",
     "speechVolume": "Громкость речи",
     "enableMagnifier": "Лупа для текста",
