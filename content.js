@@ -232,10 +232,9 @@ function applyStyles(settings) {
     css += `}`;
   }
 
-  // Color blind filter
-  if (settings.colorBlindMode && settings.colorBlindMode !== 'none') {
-    css += getColorBlindFilter(settings.colorBlindMode);
-  }
+  // Color blind filter is combined with theme filter in applyTheme()
+  // Re-apply theme to pick up any colorBlindMode change
+  applyTheme(settings.currentTheme || currentTheme);
 
   // Blue light filter
   if (settings.blueLightFilter) {
@@ -336,9 +335,15 @@ function applyTheme(theme) {
   const oldStyle = document.getElementById('vision-helper-theme');
   if (oldStyle) oldStyle.remove();
 
-  if (theme === 'dark') {
-    chrome.storage.sync.get(['darkModeIntensity'], (data) => {
+  chrome.storage.sync.get(['darkModeIntensity', 'colorBlindMode'], (data) => {
+    const cbMode = data.colorBlindMode && data.colorBlindMode !== 'none' ? data.colorBlindMode : null;
+    const cbFilter = cbMode ? `url(#${cbMode})` : '';
+
+    if (theme === 'dark') {
       const intensity = data.darkModeIntensity || 85;
+      const darkFilter = `invert(${intensity}%) hue-rotate(180deg)`;
+      // Combine dark theme + color blind filter
+      const combinedFilter = cbFilter ? `${darkFilter} ${cbFilter}` : darkFilter;
 
       // Force clear any inline filter first, then apply via rAF
       document.documentElement.style.filter = 'none';
@@ -350,7 +355,7 @@ function applyTheme(theme) {
         styleElement.id = 'vision-helper-theme';
         styleElement.textContent = `
           html {
-            filter: invert(${intensity}%) hue-rotate(180deg) !important;
+            filter: ${combinedFilter} !important;
           }
           img:not(.vision-helper-magnifier *),
           picture, video, canvas, iframe,
@@ -366,42 +371,31 @@ function applyTheme(theme) {
         document.documentElement.setAttribute('data-vision-helper-theme', 'dark');
         updateMagnifierTheme();
       });
-    });
-  } else {
-    // Light theme: explicitly remove invert filter
-    const styleElement = document.createElement('style');
-    styleElement.id = 'vision-helper-theme';
-    styleElement.textContent = `
-      html {
-        filter: none !important;
-      }
-    `;
-    (document.head || document.documentElement).appendChild(styleElement);
+    } else {
+      // Light theme: use color blind filter or none
+      const lightFilter = cbFilter || 'none';
+      const styleElement = document.createElement('style');
+      styleElement.id = 'vision-helper-theme';
+      styleElement.textContent = `
+        html {
+          filter: ${lightFilter} !important;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(styleElement);
 
-    // Also clear any inline filter that might linger
-    document.documentElement.style.removeProperty('filter');
+      // Also clear any inline filter that might linger
+      document.documentElement.style.removeProperty('filter');
 
-    document.documentElement.classList.add('light-theme');
-    document.documentElement.classList.remove('dark-theme');
-    document.documentElement.setAttribute('data-vision-helper-theme', 'light');
-    updateMagnifierTheme();
-  }
+      document.documentElement.classList.add('light-theme');
+      document.documentElement.classList.remove('dark-theme');
+      document.documentElement.setAttribute('data-vision-helper-theme', 'light');
+      updateMagnifierTheme();
+    }
+  });
 }
 
 // Color blind filters
-function getColorBlindFilter(type) {
-  const filters = {
-    protanopia: 'url(#protanopia)',
-    deuteranopia: 'url(#deuteranopia)',
-    tritanopia: 'url(#tritanopia)',
-    achromatopsia: 'url(#achromatopsia)'
-  };
-
-  return `
-    html { filter: ${filters[type] || 'none'}; }
-    .vision-helper-magnifier { filter: none !important; }
-  `;
-}
+// Color blind filter is now combined with theme in applyTheme()
 
 // ==================== MAGNIFIER ====================
 
