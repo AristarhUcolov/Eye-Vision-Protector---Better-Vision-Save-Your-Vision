@@ -8,260 +8,349 @@
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <header>
-      <div class="header-content">
-        <h1 id="app-title">👁️ Vision Helper</h1>
-        <div class="quick-actions">
-          <button id="quick-toggle-theme" class="icon-btn" title="Toggle Theme">🌓</button>
+      <div class="header-top">
+        <div class="header-brand">
+          <div class="logo-icon">
+            <img src="images/icon48.png" alt="Vision Helper" width="28" height="28">
+          </div>
+          <h1 id="app-title">Vision Helper</h1>
+        </div>
+        <div class="header-actions">
+          <label class="master-toggle" title="Enable/Disable extension">
+            <input type="checkbox" id="master-toggle" checked>
+            <span class="master-slider"></span>
+          </label>
+          <button id="quick-toggle-theme" class="icon-btn" title="Toggle Theme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+          <select id="language-selector" class="lang-select">
+            <option value="en">EN</option>
+            <option value="ru">RU</option>
+          </select>
         </div>
       </div>
-      <div class="language-switcher">
-        <select id="language-selector">
-          <option value="en">🇬🇧 English</option>
-          <option value="ru">🇷🇺 Русский</option>
-        </select>
+      <!-- Quick Stats -->
+      <div class="stats-bar">
+        <div class="stat-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="active-time">0h</span>
+        </div>
+        <div class="stat-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span id="theme-switches">0</span>
+        </div>
+        <div class="stat-chip active-count">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="active-features-count">0</span> <span data-i18n="activeLabel">active</span>
+        </div>
       </div>
     </header>
 
-    <!-- Quick Stats -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-icon">⏱️</span>
-        <span class="stat-label" data-i18n="activeTime">Active</span>
-        <span class="stat-value" id="active-time">0h</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-icon">🔄</span>
-        <span class="stat-label" data-i18n="switches">Switches</span>
-        <span class="stat-value" id="theme-switches">0</span>
-      </div>
-    </div>
-
     <!-- Quick Presets -->
-    <div class="section presets-section">
-      <h2 data-i18n="quickPresets">⚡ Quick Presets</h2>
-      <div class="presets-grid">
-        <button class="preset-btn" data-preset="reading" data-i18n="presetReading">📖 Reading</button>
-        <button class="preset-btn" data-preset="night" data-i18n="presetNight">🌙 Night</button>
-        <button class="preset-btn" data-preset="work" data-i18n="presetWork">💼 Work</button>
-        <button class="preset-btn" data-preset="presentation" data-i18n="presetPresentation">🎥 Presentation</button>
+    <div class="presets-bar">
+      <button class="preset-chip" data-preset="reading" data-i18n="presetReading">Reading</button>
+      <button class="preset-chip" data-preset="night" data-i18n="presetNight">Night</button>
+      <button class="preset-chip" data-preset="work" data-i18n="presetWork">Work</button>
+      <button class="preset-chip" data-preset="presentation" data-i18n="presetPresentation">Present.</button>
+      <button class="preset-chip preset-reset" data-preset="reset" data-i18n="presetReset">Reset</button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="protection">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span data-i18n="tabProtection">Protection</span>
+      </button>
+      <button class="tab-btn" data-tab="reading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <span data-i18n="tabReading">Reading</span>
+      </button>
+      <button class="tab-btn" data-tab="tools">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="tabTools">Tools</span>
+      </button>
+    </nav>
+
+    <!-- Tab: Protection -->
+    <div class="tab-panel active" id="tab-protection">
+      <!-- Dark Mode -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <span class="setting-title" data-i18n="colorTheme">Color Theme</span>
+          </div>
+          <select id="dark-mode" class="inline-select">
+            <option value="auto" data-i18n="auto">Auto</option>
+            <option value="light" data-i18n="lightTheme">Light</option>
+            <option value="dark" data-i18n="darkTheme">Dark</option>
+          </select>
+        </div>
+        <div class="setting-expand" id="dark-intensity-group">
+          <label class="slider-row">
+            <span class="slider-label" data-i18n="darkIntensity">Intensity</span>
+            <span class="slider-value" id="dark-intensity-value">85%</span>
+          </label>
+          <input type="range" id="dark-mode-intensity" min="80" max="100" value="85" step="5">
+        </div>
+      </div>
+
+      <!-- Blue Light Filter -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <span class="setting-title" data-i18n="blueLightFilter">Blue Light Filter</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="blue-light-filter">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="setting-expand" id="blue-light-intensity-group" style="display:none;">
+          <label class="slider-row">
+            <span class="slider-label" data-i18n="blueIntensity">Warmth</span>
+            <span class="slider-value" id="blue-intensity-value">50%</span>
+          </label>
+          <input type="range" id="blue-light-intensity" min="10" max="100" value="50" step="5">
+        </div>
+      </div>
+
+      <!-- Page Dimmer -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 0 0 20"/></svg>
+            <span class="setting-title" data-i18n="pageDimmer">Page Dimmer</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="page-dimmer">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="setting-expand" id="page-dimmer-intensity-group" style="display:none;">
+          <label class="slider-row">
+            <span class="slider-label" data-i18n="dimmerIntensity">Dimness</span>
+            <span class="slider-value" id="dimmer-intensity-value">30%</span>
+          </label>
+          <input type="range" id="page-dimmer-intensity" min="5" max="80" value="30" step="5">
+        </div>
+      </div>
+
+      <!-- Break Reminder -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="setting-title" data-i18n="breakReminder">Break Reminder</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="break-reminder">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="setting-expand" id="break-interval-group" style="display:none;">
+          <label class="slider-row">
+            <span class="slider-label" data-i18n="breakInterval">Interval</span>
+            <span class="slider-value" id="break-interval-value">20 min</span>
+          </label>
+          <input type="range" id="break-interval" min="10" max="60" value="20" step="5">
+        </div>
       </div>
     </div>
 
-    <div class="section">
-      <h2 data-i18n="textSettings">📝 Text Settings</h2>
-      <div class="control-group">
-        <label for="font-size" data-i18n="fontSize">Font Size</label>
-        <div class="slider-container">
-          <span class="slider-value" id="font-size-value">0</span>
+    <!-- Tab: Reading -->
+    <div class="tab-panel" id="tab-reading">
+      <!-- Font Size -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            <span class="setting-title" data-i18n="fontSize">Font Size</span>
+          </div>
+          <span class="badge" id="font-size-value">+0</span>
+        </div>
+        <div class="setting-expand">
           <input type="range" id="font-size" min="0" max="10" value="0" step="1">
-          <div class="slider-labels">
+          <div class="range-labels">
             <span data-i18n="standard">Standard</span>
             <span>+10</span>
           </div>
         </div>
       </div>
 
-      <div class="control-group">
-        <label for="font-family" data-i18n="fontFamily">Font Family</label>
-        <select id="font-family">
-          <option value="Arial">Arial</option>
-          <option value="Verdana">Verdana</option>
-          <option value="Helvetica">Helvetica</option>
-          <option value="Tahoma">Tahoma</option>
-          <option value="Times New Roman">Times New Roman</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Courier New">Courier New</option>
-          <option value="OpenDyslexic">OpenDyslexic</option>
-          <option value="Comic Sans MS">Comic Sans MS</option>
-        </select>
+      <!-- Font Family -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+            <span class="setting-title" data-i18n="fontFamily">Font Family</span>
+          </div>
+        </div>
+        <div class="setting-expand">
+          <select id="font-family" class="full-select">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Tahoma">Tahoma</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="OpenDyslexic">OpenDyslexic</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+          </select>
+        </div>
       </div>
 
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="bold-text">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="boldText">Bold Text</span>
-        </label>
+      <!-- Bold Text -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+            <span class="setting-title" data-i18n="boldText">Bold Text</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="bold-text">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Reading Ruler -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="22" height="12" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span class="setting-title" data-i18n="readingRuler">Reading Ruler</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="reading-ruler">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- High Contrast -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg>
+            <span class="setting-title" data-i18n="highContrast">High Contrast</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="high-contrast">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
       </div>
     </div>
 
-    <div class="section">
-      <h2 data-i18n="colorSettings">🎨 Color Settings</h2>
-      
-      <div class="control-group">
-        <label for="dark-mode" data-i18n="colorTheme">Color Theme</label>
-        <select id="dark-mode">
-          <option value="auto" data-i18n="auto">🕐 Auto (by time)</option>
-          <option value="light" data-i18n="lightTheme">☀️ Light</option>
-          <option value="dark" data-i18n="darkTheme">🌙 Dark</option>
-        </select>
+    <!-- Tab: Tools -->
+    <div class="tab-panel" id="tab-tools">
+      <!-- Focus Mode -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span class="setting-title" data-i18n="focusMode">Focus Mode</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="focus-mode">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <p class="setting-desc" data-i18n="focusModeDesc">Dims distracting page elements</p>
       </div>
 
-      <div class="control-group" id="dark-intensity-group">
-        <label for="dark-mode-intensity" data-i18n="darkIntensity">Dark Mode Intensity</label>
-        <div class="slider-container">
-          <span class="slider-value" id="dark-intensity-value">85%</span>
-          <input type="range" id="dark-mode-intensity" min="50" max="100" value="85" step="5">
-          <div class="slider-labels">
-            <span>50%</span>
-            <span>100%</span>
+      <!-- Color Blind Mode -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+            <span class="setting-title" data-i18n="colorBlindMode">Color Blind Mode</span>
           </div>
+        </div>
+        <div class="setting-expand">
+          <select id="color-blind-mode" class="full-select">
+            <option value="none" data-i18n="none">None</option>
+            <option value="protanopia" data-i18n="protanopia">Protanopia (red-blind)</option>
+            <option value="deuteranopia" data-i18n="deuteranopia">Deuteranopia (green-blind)</option>
+            <option value="tritanopia" data-i18n="tritanopia">Tritanopia (blue-blind)</option>
+            <option value="achromatopsia" data-i18n="achromatopsia">Achromatopsia</option>
+          </select>
         </div>
       </div>
 
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="blue-light-filter">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="blueLightFilter">🔵 Blue Light Filter</span>
-        </label>
-      </div>
-
-      <div class="control-group" id="blue-light-intensity-group" style="display: none;">
-        <label for="blue-light-intensity" data-i18n="blueIntensity">Filter Intensity</label>
-        <div class="slider-container">
-          <span class="slider-value" id="blue-intensity-value">50%</span>
-          <input type="range" id="blue-light-intensity" min="0" max="100" value="50" step="10">
-          <div class="slider-labels">
-            <span>0%</span>
-            <span>100%</span>
+      <!-- Text-to-Speech -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <span class="setting-title" data-i18n="enableTextToSpeech">Text-to-Speech</span>
           </div>
+          <label class="toggle">
+            <input type="checkbox" id="text-to-speech" checked>
+            <span class="toggle-track"></span>
+          </label>
         </div>
-      </div>
-
-      <div class="control-group">
-        <label for="color-blind-mode" data-i18n="colorBlindMode">Color Blind Mode</label>
-        <select id="color-blind-mode">
-          <option value="none" data-i18n="none">None</option>
-          <option value="protanopia" data-i18n="protanopia">Protanopia (red-blind)</option>
-          <option value="deuteranopia" data-i18n="deuteranopia">Deuteranopia (green-blind)</option>
-          <option value="tritanopia" data-i18n="tritanopia">Tritanopia (blue-blind)</option>
-          <option value="achromatopsia" data-i18n="achromatopsia">Achromatopsia (total color blindness)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2 data-i18n="accessibilityTools">♿ Accessibility Tools</h2>
-      
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="reading-ruler">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="readingRuler">📏 Reading Ruler</span>
-        </label>
-      </div>
-      
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="high-contrast">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="highContrast">⬛ High Contrast</span>
-        </label>
-      </div>
-      
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="page-dimmer">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="pageDimmer">🔅 Page Dimmer</span>
-        </label>
-      </div>
-
-      <div class="control-group" id="page-dimmer-intensity-group" style="display: none;">
-        <label for="page-dimmer-intensity" data-i18n="dimmerIntensity">Dimmer Intensity</label>
-        <div class="slider-container">
-          <span class="slider-value" id="dimmer-intensity-value">30%</span>
-          <input type="range" id="page-dimmer-intensity" min="0" max="80" value="30" step="10">
-          <div class="slider-labels">
-            <span>0%</span>
-            <span>80%</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="focus-mode">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="focusMode">🎯 Focus Mode (Dim Distractions)</span>
-        </label>
-      </div>
-      
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="break-reminder">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="breakReminder">⏰ Break Reminder (20-20-20)</span>
-        </label>
-      </div>
-
-      <div class="control-group" id="break-interval-group" style="display: none;">
-        <label for="break-interval" data-i18n="breakInterval">Reminder Interval (minutes)</label>
-        <div class="slider-container">
-          <span class="slider-value" id="break-interval-value">20 min</span>
-          <input type="range" id="break-interval" min="10" max="60" value="20" step="5">
-          <div class="slider-labels">
-            <span>10</span>
-            <span>60</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="text-to-speech" checked>
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="enableTextToSpeech">🔊 Text-to-Speech</span>
-        </label>
-      </div>
-
-      <div class="control-group" id="speech-volume-group">
-        <label for="speech-volume" data-i18n="speechVolume">Speech Volume</label>
-        <div class="slider-container">
-          <span class="slider-value" id="speech-volume-value">100%</span>
+        <div class="setting-expand" id="speech-volume-group">
+          <label class="slider-row">
+            <span class="slider-label" data-i18n="speechVolume">Volume</span>
+            <span class="slider-value" id="speech-volume-value">100%</span>
+          </label>
           <input type="range" id="speech-volume" min="0" max="100" value="100" step="5">
-          <div class="slider-labels">
-            <span>0%</span>
-            <span>100%</span>
-          </div>
         </div>
       </div>
 
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="magnifier-enabled" checked>
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="enableMagnifier">🔍 Text Magnifier</span>
-        </label>
+      <!-- Text Magnifier -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <span class="setting-title" data-i18n="enableMagnifier">Text Magnifier</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="magnifier-enabled" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <p class="setting-desc" data-i18n="magnifierDesc">Right-click selected text to magnify</p>
       </div>
 
-      <div class="control-group">
-        <label class="toggle-container">
-          <input type="checkbox" id="show-time-notification" checked>
-          <span class="toggle-slider"></span>
-          <span class="toggle-label" data-i18n="showTimeNotifications">🔔 Theme Change Notifications</span>
-        </label>
+      <!-- Theme Notifications -->
+      <div class="setting-card">
+        <div class="setting-header">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="setting-title" data-i18n="showTimeNotifications">Notifications</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="show-time-notification" checked>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
       </div>
     </div>
 
-    <!-- Support Section -->
-    <div class="section donate-section">
-      <h2 data-i18n="supportProject">💝 Support Project</h2>
-      <p data-i18n="donateMessage">If you find this extension helpful, consider supporting its development!</p>
-      <div class="donate-buttons">
-        <button id="buy-me-coffee" class="donate-button primary" data-i18n="buyMeCoffee">☕ Buy Me a Coffee</button>
-        <button id="bank-transfer" class="donate-button secondary" data-i18n="bankTransfer">🏦 Bank Transfer</button>
-      </div>
-    </div>
-
+    <!-- Footer -->
     <div class="footer">
-      <button id="options-button" class="btn-secondary" data-i18n="advancedSettings">⚙️ Advanced Settings</button>
-      <p class="version">v1.1.0</p>
+      <button id="options-button" class="footer-btn" data-i18n="advancedSettings">
+        Advanced Settings
+      </button>
+      <div class="footer-right">
+        <button id="buy-me-coffee" class="footer-btn donate-btn" title="Support project">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </button>
+        <span class="version">v2.0.0</span>
+      </div>
     </div>
   </div>
 
+  <script src="../i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

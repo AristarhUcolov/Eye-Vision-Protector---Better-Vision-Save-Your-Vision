@@ -1,221 +1,231 @@
-// Фоновый скрипт для управления расширением
-chrome.runtime.onInstalled.addListener(() => {
-  // Установка значений по умолчанию
-  chrome.storage.sync.set({
-    fontSize: 0,
-    boldText: false,
-    selectedFont: 'Arial',
-    darkMode: 'auto',
-    darkModeIntensity: 85,
-    blueLightFilter: false,
-    blueLightIntensity: 50,
-    focusMode: false,
-    colorBlindMode: 'none',
-    textToSpeech: true,
-    speechVolume: 100,
-    magnifierEnabled: true,
-    showTimeNotification: true,
-    currentTheme: 'light',
-    language: chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en',
-    // New features
-    readingRuler: false,
-    breakReminder: false,
-    breakInterval: 20, // minutes
-    pageDimmer: false,
-    pageDimmerIntensity: 30,
-    highContrast: false,
-    activePreset: 'none',
-    usageStats: {
-      totalTimeUsed: 0,
-      themeSwitches: 0,
-      lastUsed: Date.now()
-    }
-  });
+// Background service worker
 
-  // Создание контекстного меню
-  updateContextMenu();
-  
-  // Проверка времени для темы
-  checkTimeForTheme();
-  
-  // Установка интервала для проверки времени каждые 5 минут
-  setInterval(checkTimeForTheme, 300000);
-});
-
-// Обновление контекстного меню
-function updateContextMenu() {
-  chrome.contextMenus.removeAll(() => {
-    chrome.storage.sync.get(['language', 'textToSpeech', 'magnifierEnabled'], function(data) {
-      const isRussian = data.language === 'ru';
-      
-      chrome.contextMenus.create({
-        id: "readText",
-        title: isRussian ? "Озвучить текст" : "Read text aloud",
-        contexts: ["selection"],
-        enabled: data.textToSpeech
-      });
-
-      chrome.contextMenus.create({
-        id: "magnifyText",
-        title: isRussian ? "Увеличить текст" : "Magnify text",
-        contexts: ["selection"],
-        enabled: data.magnifierEnabled
-      });
-    });
-  });
-}
-
-// Обработчик контекстного меню
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "readText") {
-    chrome.storage.sync.get(['textToSpeech', 'speechVolume'], function(data) {
-      if (data.textToSpeech && info.selectionText) {
-        const lang = detectLanguage(info.selectionText);
-        chrome.tts.speak(info.selectionText, {
-          rate: 1.0,
-          lang: lang,
-          volume: data.speechVolume ? data.speechVolume / 100 : 1.0
-        });
-      }
-    });
-  } else if (info.menuItemId === "magnifyText") {
-    chrome.storage.sync.get(['magnifierEnabled'], function(data) {
-      if (data.magnifierEnabled && info.selectionText) {
-        chrome.tabs.sendMessage(tab.id, {
-          action: "showMagnifier",
-          text: info.selectionText
-        });
-      }
-    });
+const DEFAULT_SETTINGS = {
+  fontSize: 0,
+  boldText: false,
+  selectedFont: 'Arial',
+  darkMode: 'auto',
+  darkModeIntensity: 85,
+  blueLightFilter: false,
+  blueLightIntensity: 50,
+  focusMode: false,
+  colorBlindMode: 'none',
+  textToSpeech: true,
+  speechVolume: 100,
+  magnifierEnabled: true,
+  showTimeNotification: true,
+  currentTheme: 'light',
+  readingRuler: false,
+  breakReminder: false,
+  breakInterval: 20,
+  pageDimmer: false,
+  pageDimmerIntensity: 30,
+  highContrast: false,
+  activePreset: 'none',
+  extensionEnabled: true,
+  disabledSites: [],
+  customCSS: '',
+  usageStats: {
+    totalTimeUsed: 0,
+    themeSwitches: 0,
+    lastUsed: Date.now()
   }
-});
+};
 
-// Функция определения языка текста
-function detectLanguage(text) {
-  const russianChars = text.match(/[а-яА-ЯЁё]/g);
-  const englishChars = text.match(/[a-zA-Z]/g);
-  
-  if (russianChars && russianChars.length > (englishChars ? englishChars.length : 0)) {
-    return 'ru-RU';
-  }
-  return 'en-US';
-}
+// ==================== INSTALLATION ====================
 
-// Проверка времени для автоматического переключения темы
-function checkTimeForTheme() {
-  chrome.storage.sync.get(['darkMode', 'showTimeNotification', 'language'], (data) => {
-    if (data.darkMode === 'auto') {
-      const hours = new Date().getHours();
-      const isNightTime = hours >= 20 || hours < 7;
-      
-      chrome.storage.sync.set({ currentTheme: isNightTime ? 'dark' : 'light' }, () => {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, {
-              action: "applyTheme",
-              theme: isNightTime ? 'dark' : 'light'
-            });
-          });
-        });
-      });
-
-      // Показ уведомления о смене темы
-      if (data.showTimeNotification) {
-        if (isNightTime && hours === 20) {
-          showNotification(data.language === 'ru' ? 
-            "Переключение на тёмную тему для ночного времени (20:00 - 7:00)" : 
-            "Switching to dark theme for night time (8 PM - 7 AM)");
-        } else if (!isNightTime && hours === 7) {
-          showNotification(data.language === 'ru' ?
-            "Переключение на светлую тему для дневного времени (7:00 - 20:00)" :
-            "Switching to light theme for daytime (7 AM - 8 PM)");
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    // First install - set all defaults
+    const settings = { ...DEFAULT_SETTINGS };
+    settings.language = chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en';
+    chrome.storage.sync.set(settings);
+  } else if (details.reason === 'update') {
+    // Update - only set new keys that don't exist yet (preserve user settings)
+    chrome.storage.sync.get(null, (existing) => {
+      const newKeys = {};
+      for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
+        if (!(key in existing)) {
+          newKeys[key] = value;
         }
       }
+      if (Object.keys(newKeys).length > 0) {
+        chrome.storage.sync.set(newKeys);
+      }
+    });
+  }
+
+  updateContextMenu();
+  checkTimeForTheme();
+  startBreakReminder();
+  updateBadge();
+});
+
+// ==================== CONTEXT MENU ====================
+
+function updateContextMenu() {
+  chrome.contextMenus.removeAll(() => {
+    chrome.storage.sync.get(['language', 'textToSpeech', 'magnifierEnabled'], (data) => {
+      const isRu = data.language === 'ru';
+
+      if (data.textToSpeech !== false) {
+        chrome.contextMenus.create({
+          id: "readText",
+          title: isRu ? "Озвучить текст" : "Read text aloud",
+          contexts: ["selection"]
+        });
+      }
+
+      if (data.magnifierEnabled !== false) {
+        chrome.contextMenus.create({
+          id: "magnifyText",
+          title: isRu ? "Увеличить текст" : "Magnify text",
+          contexts: ["selection"]
+        });
+      }
+    });
+  });
+}
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "readText" && info.selectionText) {
+    chrome.storage.sync.get(['speechVolume'], (data) => {
+      const lang = detectLanguage(info.selectionText);
+      chrome.tts.speak(info.selectionText, {
+        rate: 1.0,
+        lang: lang,
+        volume: data.speechVolume ? data.speechVolume / 100 : 1.0
+      });
+    });
+  } else if (info.menuItemId === "magnifyText" && info.selectionText) {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "showMagnifier",
+      text: info.selectionText
+    }).catch(() => {});
+  }
+});
+
+function detectLanguage(text) {
+  const ruChars = (text.match(/[а-яА-ЯЁё]/g) || []).length;
+  const enChars = (text.match(/[a-zA-Z]/g) || []).length;
+  return ruChars > enChars ? 'ru-RU' : 'en-US';
+}
+
+// ==================== TIME-BASED THEME ====================
+
+function checkTimeForTheme() {
+  chrome.storage.sync.get(['darkMode', 'showTimeNotification', 'language'], (data) => {
+    if (data.darkMode !== 'auto') return;
+
+    const hours = new Date().getHours();
+    const isNight = hours >= 20 || hours < 7;
+    const newTheme = isNight ? 'dark' : 'light';
+
+    chrome.storage.sync.set({ currentTheme: newTheme }, () => {
+      // Notify all tabs
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, {
+            action: "applyTheme",
+            theme: newTheme
+          }).catch(() => {});
+        });
+      });
+    });
+
+    // Show notification at transition times
+    if (data.showTimeNotification) {
+      const isRu = data.language === 'ru';
+      if (isNight && hours === 20) {
+        showNotification(isRu
+          ? "Переключение на тёмную тему (20:00 - 7:00)"
+          : "Switching to dark theme for night time (8 PM - 7 AM)");
+      } else if (!isNight && hours === 7) {
+        showNotification(isRu
+          ? "Переключение на светлую тему (7:00 - 20:00)"
+          : "Switching to light theme for daytime (7 AM - 8 PM)");
+      }
     }
   });
 }
 
-// Показать уведомление
+// Check time every 5 minutes
+setInterval(checkTimeForTheme, 300000);
+
 function showNotification(message) {
   chrome.notifications.create({
     type: 'basic',
     iconUrl: 'popup/images/icon48.png',
-    title: chrome.i18n.getMessage("appName"),
+    title: 'Vision Helper',
     message: message
   });
 }
 
-// Обработчик изменения настроек
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (changes.language || changes.textToSpeech || changes.magnifierEnabled) {
-    updateContextMenu();
-  }
-});
+// ==================== KEYBOARD COMMANDS ====================
 
-// Обработчик команд с клавиатуры
 chrome.commands.onCommand.addListener((command) => {
-  if (command === 'toggle-dark-mode') {
-    chrome.storage.sync.get(['darkMode', 'currentTheme'], (data) => {
-      const newTheme = data.currentTheme === 'dark' ? 'light' : 'dark';
-      chrome.storage.sync.set({ currentTheme: newTheme }, () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-              action: "applyTheme",
-              theme: newTheme
-            });
-          }
+  const handlers = {
+    'toggle-dark-mode': () => {
+      chrome.storage.sync.get(['currentTheme'], (data) => {
+        const newTheme = data.currentTheme === 'dark' ? 'light' : 'dark';
+        chrome.storage.sync.set({ currentTheme: newTheme, darkMode: newTheme }, () => {
+          notifyAllTabs({ action: "applyTheme", theme: newTheme });
+          updateBadge();
         });
-        updateBadge();
       });
-    });
-  } else if (command === 'toggle-reading-ruler') {
-    chrome.storage.sync.get(['readingRuler'], (data) => {
-      const newValue = !data.readingRuler;
-      chrome.storage.sync.set({ readingRuler: newValue }, () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, {
-              action: "toggleReadingRuler",
-              enabled: newValue
-            });
-          }
-        });
-        updateBadge();
-      });
-    });
-  } else if (command === 'toggle-blue-light') {
-    chrome.storage.sync.get(['blueLightFilter'], (data) => {
-      const newValue = !data.blueLightFilter;
-      chrome.storage.sync.set({ blueLightFilter: newValue }, () => {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
+    },
+    'toggle-reading-ruler': () => {
+      chrome.storage.sync.get(['readingRuler'], (data) => {
+        const val = !data.readingRuler;
+        chrome.storage.sync.set({ readingRuler: val }, () => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+              chrome.tabs.sendMessage(tabs[0].id, {
+                action: "toggleReadingRuler", enabled: val
+              }).catch(() => {});
+            }
           });
+          updateBadge();
         });
-        updateBadge();
       });
-    });
-  } else if (command === 'toggle-focus-mode') {
-    chrome.storage.sync.get(['focusMode'], (data) => {
-      const newValue = !data.focusMode;
-      chrome.storage.sync.set({ focusMode: newValue }, () => {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach(tab => {
-            chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
-          });
+    },
+    'toggle-blue-light': () => {
+      chrome.storage.sync.get(['blueLightFilter'], (data) => {
+        const val = !data.blueLightFilter;
+        chrome.storage.sync.set({ blueLightFilter: val }, () => {
+          notifyAllTabs({ action: "applyStyles" });
+          updateBadge();
         });
-        updateBadge();
       });
-    });
-  }
+    },
+    'toggle-focus-mode': () => {
+      chrome.storage.sync.get(['focusMode'], (data) => {
+        const val = !data.focusMode;
+        chrome.storage.sync.set({ focusMode: val }, () => {
+          notifyAllTabs({ action: "applyStyles" });
+          updateBadge();
+        });
+      });
+    }
+  };
+
+  if (handlers[command]) handlers[command]();
 });
 
-// Update badge with active filters count
+function notifyAllTabs(message) {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+    });
+  });
+}
+
+// ==================== BADGE ====================
+
 function updateBadge() {
   chrome.storage.sync.get([
-    'currentTheme', 'blueLightFilter', 'focusMode', 
-    'readingRuler', 'pageDimmer', 'highContrast'
+    'currentTheme', 'blueLightFilter', 'focusMode',
+    'readingRuler', 'pageDimmer', 'highContrast', 'breakReminder'
   ], (data) => {
     let count = 0;
     if (data.currentTheme === 'dark') count++;
@@ -224,54 +234,76 @@ function updateBadge() {
     if (data.readingRuler) count++;
     if (data.pageDimmer) count++;
     if (data.highContrast) count++;
-    
-    if (count > 0) {
-      chrome.action.setBadgeText({ text: count.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
-    } else {
-      chrome.action.setBadgeText({ text: '' });
-    }
+    if (data.breakReminder) count++;
+
+    chrome.action.setBadgeText({ text: count > 0 ? count.toString() : '' });
+    chrome.action.setBadgeBackgroundColor({ color: '#0d9373' });
   });
 }
 
-// Break reminder system
+// ==================== BREAK REMINDER ====================
+
 let breakReminderInterval = null;
 
 function startBreakReminder() {
+  if (breakReminderInterval) {
+    clearInterval(breakReminderInterval);
+    breakReminderInterval = null;
+  }
+
   chrome.storage.sync.get(['breakReminder', 'breakInterval', 'language'], (data) => {
-    if (breakReminderInterval) {
-      clearInterval(breakReminderInterval);
-      breakReminderInterval = null;
-    }
-    
-    if (data.breakReminder) {
-      const intervalMs = (data.breakInterval || 20) * 60 * 1000;
-      
-      breakReminderInterval = setInterval(() => {
-        const isRussian = data.language === 'ru';
-        const title = isRussian ? '⏰ Время отдохнуть!' : '⏰ Time for a break!';
-        const message = isRussian 
-          ? 'Правило 20-20-20: Посмотрите на объект в 20 футах (6 метров) в течение 20 секунд.' 
-          : '20-20-20 Rule: Look at something 20 feet (6 meters) away for 20 seconds.';
-        
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'popup/images/icon48.png',
-          title: title,
-          message: message,
-          priority: 2
-        });
-      }, intervalMs);
-    }
+    if (!data.breakReminder) return;
+
+    const intervalMs = (data.breakInterval || 20) * 60 * 1000;
+    const isRu = data.language === 'ru';
+
+    breakReminderInterval = setInterval(() => {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'popup/images/icon48.png',
+        title: isRu ? 'Время отдохнуть!' : 'Time for a break!',
+        message: isRu
+          ? 'Правило 20-20-20: Посмотрите на объект в 6 метрах в течение 20 секунд.'
+          : '20-20-20 Rule: Look at something 20 feet (6 meters) away for 20 seconds.',
+        priority: 2
+      });
+    }, intervalMs);
   });
 }
 
-// Apply preset configurations
+// ==================== PRESETS ====================
+
 function applyPreset(presetName) {
+  if (presetName === 'reset') {
+    // Reset to defaults (but keep language, stats, etc.)
+    const resetSettings = {
+      fontSize: 0,
+      boldText: false,
+      selectedFont: 'Arial',
+      darkMode: 'auto',
+      darkModeIntensity: 85,
+      blueLightFilter: false,
+      blueLightIntensity: 50,
+      focusMode: false,
+      readingRuler: false,
+      pageDimmer: false,
+      pageDimmerIntensity: 30,
+      highContrast: false,
+      activePreset: 'none'
+    };
+    chrome.storage.sync.set(resetSettings, () => {
+      notifyAllTabs({ action: "applyStyles" });
+      updateBadge();
+      checkTimeForTheme();
+    });
+    return;
+  }
+
   const presets = {
-    'reading': {
+    reading: {
       fontSize: 3,
       darkMode: 'light',
+      currentTheme: 'light',
       blueLightFilter: true,
       blueLightIntensity: 30,
       focusMode: false,
@@ -279,10 +311,11 @@ function applyPreset(presetName) {
       pageDimmer: false,
       highContrast: false
     },
-    'night': {
+    night: {
       fontSize: 2,
       darkMode: 'dark',
-      darkModeIntensity: 90,
+      currentTheme: 'dark',
+      darkModeIntensity: 85,
       blueLightFilter: true,
       blueLightIntensity: 70,
       focusMode: false,
@@ -291,7 +324,7 @@ function applyPreset(presetName) {
       pageDimmerIntensity: 40,
       highContrast: false
     },
-    'work': {
+    work: {
       fontSize: 1,
       darkMode: 'auto',
       blueLightFilter: true,
@@ -301,9 +334,10 @@ function applyPreset(presetName) {
       pageDimmer: false,
       highContrast: false
     },
-    'presentation': {
+    presentation: {
       fontSize: 5,
       darkMode: 'light',
+      currentTheme: 'light',
       blueLightFilter: false,
       focusMode: false,
       readingRuler: false,
@@ -311,41 +345,66 @@ function applyPreset(presetName) {
       highContrast: true
     }
   };
-  
+
   const preset = presets[presetName];
   if (preset) {
     preset.activePreset = presetName;
     chrome.storage.sync.set(preset, () => {
-      chrome.tabs.query({}, (tabs) => {
-        tabs.forEach(tab => {
-          chrome.tabs.sendMessage(tab.id, { action: "applyStyles" });
-        });
-      });
+      notifyAllTabs({ action: "applyStyles" });
       updateBadge();
-      checkTimeForTheme();
+      if (preset.darkMode === 'auto') checkTimeForTheme();
     });
   }
 }
 
-// Listen for preset messages
+// ==================== MESSAGE HANDLER ====================
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "applyPreset") {
-    applyPreset(request.preset);
-  } else if (request.action === "updateBadge") {
-    updateBadge();
-  } else if (request.action === "startBreakReminder") {
-    startBreakReminder();
+  switch (request.action) {
+    case 'applyPreset':
+      applyPreset(request.preset);
+      break;
+    case 'updateBadge':
+      updateBadge();
+      break;
+    case 'startBreakReminder':
+      startBreakReminder();
+      break;
+    case 'updateContextMenu':
+      updateContextMenu();
+      break;
+    case 'checkTimeForTheme':
+      checkTimeForTheme();
+      break;
   }
 });
 
-// Initialize badge and break reminder
-updateBadge();
-startBreakReminder();
+// ==================== STORAGE CHANGE LISTENER ====================
 
-// Update on storage changes
-chrome.storage.onChanged.addListener((changes, namespace) => {
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.language || changes.textToSpeech || changes.magnifierEnabled) {
+    updateContextMenu();
+  }
   if (changes.breakReminder || changes.breakInterval) {
     startBreakReminder();
   }
   updateBadge();
 });
+
+// ==================== USAGE TRACKING ====================
+
+// Track active time every minute
+setInterval(() => {
+  chrome.storage.sync.get(['usageStats', 'extensionEnabled'], (data) => {
+    if (data.extensionEnabled === false) return;
+
+    const stats = data.usageStats || { totalTimeUsed: 0, themeSwitches: 0, lastUsed: Date.now() };
+    stats.totalTimeUsed = (stats.totalTimeUsed || 0) + 1;
+    stats.lastUsed = Date.now();
+    chrome.storage.sync.set({ usageStats: stats });
+  });
+}, 60000);
+
+// Initialize on startup
+updateBadge();
+startBreakReminder();

@@ -1,265 +1,263 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Инициализация вкладок
+document.addEventListener('DOMContentLoaded', () => {
   initTabs();
-  
-  // Загрузка пользовательского CSS
   loadCustomCSS();
-  
-  // Загрузка отключенных сайтов
   loadDisabledSites();
-  
-  // Загрузка статистики
   loadStatistics();
-  
-  // Инициализация перевода
-  initTranslations();
-  
-  // Установка обработчиков событий
+  initLanguage();
   setupEventListeners();
 });
 
-// Инициализация вкладок
+// ==================== TABS ====================
+
 function initTabs() {
-  const tabButtons = document.querySelectorAll('.tab-button');
-  const tabContents = document.querySelectorAll('.tab-content');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const tabId = button.getAttribute('data-tab');
-      
-      // Убираем активный класс со всех кнопок и контента
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
-      
-      // Добавляем активный класс к выбранным элементам
-      button.classList.add('active');
+  const buttons = document.querySelectorAll('.tab-button');
+  const contents = document.querySelectorAll('.tab-content');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tab;
+      buttons.forEach(b => b.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     });
   });
 }
 
-// Загрузка пользовательского CSS
+// ==================== LANGUAGE ====================
+
+function initLanguage() {
+  chrome.storage.sync.get(['language'], (data) => {
+    const lang = data.language || (chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en');
+    document.getElementById('language-selector').value = lang;
+    applyTranslations(lang);
+    document.title = t('appName', lang) + ' - ' + t('advancedSettings', lang);
+  });
+}
+
+// ==================== DATA LOADING ====================
+
 function loadCustomCSS() {
-  chrome.storage.sync.get(['customCSS'], function(data) {
+  chrome.storage.sync.get(['customCSS'], (data) => {
     if (data.customCSS) {
       document.getElementById('custom-css-editor').value = data.customCSS;
     }
   });
 }
 
-// Загрузка отключенных сайтов
 function loadDisabledSites() {
-  chrome.storage.sync.get(['disabledSites'], function(data) {
+  chrome.storage.sync.get(['disabledSites'], (data) => {
     const sites = data.disabledSites || [];
-    const listElement = document.getElementById('disabled-sites-list');
-    
+    const list = document.getElementById('disabled-sites-list');
+
     if (sites.length === 0) {
-      listElement.innerHTML = '<div class="empty-state"><span>No disabled sites yet</span></div>';
+      list.innerHTML = '<div class="empty-state"><span>No disabled sites yet</span></div>';
       return;
     }
-    
-    listElement.innerHTML = '';
+
+    list.innerHTML = '';
     sites.forEach(site => {
-      const siteItem = document.createElement('div');
-      siteItem.className = 'site-item';
-      siteItem.innerHTML = `
-        <span>${site}</span>
-        <button class="remove-site" data-site="${site}">❌ Remove</button>
+      const item = document.createElement('div');
+      item.className = 'site-item';
+      item.innerHTML = `
+        <span>${escapeHtml(site)}</span>
+        <button class="remove-site" data-site="${escapeHtml(site)}">Remove</button>
       `;
-      listElement.appendChild(siteItem);
+      list.appendChild(item);
     });
-    
-    // Добавляем обработчики для кнопок удаления
+
     document.querySelectorAll('.remove-site').forEach(btn => {
-      btn.addEventListener('click', function() {
-        removeSite(this.getAttribute('data-site'));
+      btn.addEventListener('click', function () {
+        removeSite(this.dataset.site);
       });
     });
   });
 }
 
-// Загрузка статистики
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 function loadStatistics() {
-  chrome.storage.sync.get(['usageStats'], function(data) {
+  chrome.storage.sync.get(['usageStats'], (data) => {
     const stats = data.usageStats || { totalTimeUsed: 0, themeSwitches: 0, lastUsed: Date.now() };
-    
-    // Конвертируем минуты в часы
+
     const hours = Math.floor(stats.totalTimeUsed / 60);
     const minutes = stats.totalTimeUsed % 60;
-    let timeStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-    
-    document.getElementById('total-time').textContent = timeStr;
+    document.getElementById('total-time').textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
     document.getElementById('total-switches').textContent = stats.themeSwitches || 0;
-    
-    // Форматируем дату последнего использования
+
     const lastUsed = new Date(stats.lastUsed);
-    const now = new Date();
-    const diffMs = now - lastUsed;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+    const diffDays = Math.floor((Date.now() - lastUsed) / (1000 * 60 * 60 * 24));
+
     let lastUsedStr;
-    if (diffDays === 0) {
-      lastUsedStr = 'Today';
-    } else if (diffDays === 1) {
-      lastUsedStr = 'Yesterday';
-    } else if (diffDays < 7) {
-      lastUsedStr = `${diffDays} days ago`;
-    } else {
-      lastUsedStr = lastUsed.toLocaleDateString();
-    }
-    
+    if (diffDays === 0) lastUsedStr = 'Today';
+    else if (diffDays === 1) lastUsedStr = 'Yesterday';
+    else if (diffDays < 7) lastUsedStr = `${diffDays} days ago`;
+    else lastUsedStr = lastUsed.toLocaleDateString();
+
     document.getElementById('last-used').textContent = lastUsedStr;
   });
 }
 
-// Установка обработчиков событий
+// ==================== EVENT LISTENERS ====================
+
 function setupEventListeners() {
-  // Сохранение CSS
   document.getElementById('save-css').addEventListener('click', saveCustomCSS);
-  
-  // Очистка CSS
   document.getElementById('clear-css').addEventListener('click', clearCustomCSS);
-  
-  // Сброс настроек
   document.getElementById('reset-settings').addEventListener('click', resetSettings);
-  
-  // Изменение языка
-  document.getElementById('language-selector').addEventListener('click', changeLanguage);
-  
-  // Добавление сайта
   document.getElementById('add-site').addEventListener('click', addSite);
-  
-  // Экспорт настроек
   document.getElementById('export-settings').addEventListener('click', exportSettings);
-  
-  // Импорт настроек
+
   document.getElementById('import-settings').addEventListener('click', () => {
     document.getElementById('import-file').click();
   });
-  
   document.getElementById('import-file').addEventListener('change', importSettings);
+
+  // Fixed: use 'change' instead of 'click'
+  document.getElementById('language-selector').addEventListener('change', function () {
+    const lang = this.value;
+    chrome.storage.sync.set({ language: lang }, () => {
+      applyTranslations(lang);
+      document.title = t('appName', lang) + ' - ' + t('advancedSettings', lang);
+      showToast(t('languageChanged', lang));
+    });
+  });
+
+  // Enter key to add site
+  document.getElementById('new-site').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addSite();
+  });
 }
 
-// Сохранение пользовательского CSS
+// ==================== ACTIONS ====================
+
 function saveCustomCSS() {
-  const customCSS = document.getElementById('custom-css-editor').value;
-  chrome.storage.sync.set({ customCSS: customCSS }, function() {
-    // Применяем CSS на всех вкладках
-    chrome.tabs.query({}, function(tabs) {
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+  const css = document.getElementById('custom-css-editor').value;
+
+  chrome.storage.sync.set({ customCSS: css }, () => {
+    chrome.tabs.query({}, (tabs) => {
       tabs.forEach(tab => {
-        chrome.tabs.sendMessage(tab.id, { 
-          action: "applyCustomCSS", 
-          css: customCSS 
+        chrome.tabs.sendMessage(tab.id, {
+          action: "applyCustomCSS",
+          css: css
         }).catch(() => {});
       });
     });
-    
-    showToast('Custom CSS saved successfully!');
+    showToast(t('cssSaved', lang));
   });
 }
 
-// Очистка пользовательского CSS
 function clearCustomCSS() {
-  if (confirm('Are you sure you want to clear all custom CSS?')) {
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+
+  if (confirm(lang === 'ru' ? 'Очистить весь CSS?' : 'Clear all custom CSS?')) {
     document.getElementById('custom-css-editor').value = '';
-    chrome.storage.sync.set({ customCSS: '' }, function() {
-      chrome.tabs.query({}, function(tabs) {
+    chrome.storage.sync.set({ customCSS: '' }, () => {
+      chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
-          chrome.tabs.sendMessage(tab.id, { 
-            action: "applyCustomCSS", 
-            css: '' 
+          chrome.tabs.sendMessage(tab.id, {
+            action: "applyCustomCSS",
+            css: ''
           }).catch(() => {});
         });
       });
-      showToast('Custom CSS cleared!');
+      showToast(t('cssCleared', lang));
     });
   }
 }
 
-// Добавление сайта в список отключенных
 function addSite() {
-  const siteInput = document.getElementById('new-site');
-  const site = siteInput.value.trim();
-  
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+  const input = document.getElementById('new-site');
+  const site = input.value.trim().toLowerCase();
+
   if (!site) {
-    showToast('Please enter a website URL', 'error');
+    showToast(t('enterSiteUrl', lang), 'error');
     return;
   }
-  
-  chrome.storage.sync.get(['disabledSites'], function(data) {
+
+  chrome.storage.sync.get(['disabledSites'], (data) => {
     const sites = data.disabledSites || [];
-    
+
     if (sites.includes(site)) {
-      showToast('Site already in the list', 'error');
+      showToast(t('siteExists', lang), 'error');
       return;
     }
-    
+
     sites.push(site);
-    chrome.storage.sync.set({ disabledSites: sites }, function() {
-      siteInput.value = '';
+    chrome.storage.sync.set({ disabledSites: sites }, () => {
+      input.value = '';
       loadDisabledSites();
-      showToast('Site added successfully!');
+      showToast(t('siteAdded', lang));
     });
   });
 }
 
-// Удаление сайта из списка отключенных
 function removeSite(site) {
-  chrome.storage.sync.get(['disabledSites'], function(data) {
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+
+  chrome.storage.sync.get(['disabledSites'], (data) => {
     const sites = data.disabledSites || [];
-    const index = sites.indexOf(site);
-    
-    if (index > -1) {
-      sites.splice(index, 1);
-      chrome.storage.sync.set({ disabledSites: sites }, function() {
+    const idx = sites.indexOf(site);
+
+    if (idx > -1) {
+      sites.splice(idx, 1);
+      chrome.storage.sync.set({ disabledSites: sites }, () => {
         loadDisabledSites();
-        showToast('Site removed successfully!');
+        showToast(t('siteRemoved', lang));
       });
     }
   });
 }
 
-// Экспорт настроек
 function exportSettings() {
-  chrome.storage.sync.get(null, function(data) {
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+
+  chrome.storage.sync.get(null, (data) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `vision-helper-settings-${Date.now()}.json`;
+    link.download = `vision-helper-settings-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    showToast('Settings exported successfully!');
+    showToast(t('settingsExported', lang));
   });
 }
 
-// Импорт настроек
 function importSettings(event) {
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
   const file = event.target.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = (e) => {
     try {
       const settings = JSON.parse(e.target.result);
-      chrome.storage.sync.set(settings, function() {
-        showToast('Settings imported successfully!');
+      chrome.storage.sync.set(settings, () => {
+        showToast(t('settingsImported', lang));
         setTimeout(() => location.reload(), 1500);
       });
-    } catch (error) {
-      showToast('Invalid settings file!', 'error');
+    } catch {
+      showToast(t('invalidFile', lang), 'error');
     }
   };
   reader.readAsText(file);
 }
 
-// Сброс настроек
 function resetSettings() {
-  if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone!')) {
-    chrome.storage.sync.clear(function() {
-      // Устанавливаем значения по умолчанию
-      chrome.storage.sync.set({
+  const lang = document.documentElement.getAttribute('data-lang') || 'en';
+  const msg = lang === 'ru'
+    ? 'Вы уверены что хотите сбросить все настройки?'
+    : 'Are you sure you want to reset all settings to defaults?';
+
+  if (confirm(msg)) {
+    chrome.storage.sync.clear(() => {
+      const defaults = {
         fontSize: 0,
         boldText: false,
         selectedFont: 'Arial',
@@ -275,144 +273,45 @@ function resetSettings() {
         showTimeNotification: true,
         currentTheme: 'light',
         customCSS: '',
+        extensionEnabled: true,
+        readingRuler: false,
+        breakReminder: false,
+        breakInterval: 20,
+        pageDimmer: false,
+        pageDimmerIntensity: 30,
+        highContrast: false,
+        activePreset: 'none',
+        disabledSites: [],
         language: chrome.i18n.getUILanguage().startsWith('ru') ? 'ru' : 'en',
         usageStats: {
           totalTimeUsed: 0,
           themeSwitches: 0,
           lastUsed: Date.now()
         }
-      }, function() {
-        showToast('Settings reset successfully!');
+      };
+
+      chrome.storage.sync.set(defaults, () => {
+        showToast(t('settingsReset', lang));
         setTimeout(() => location.reload(), 1500);
       });
     });
   }
 }
 
-// Инициализация перевода
-function initTranslations() {
-  // Установка языка из хранилища или браузера
-  chrome.storage.sync.get(['language'], function(data) {
-    const language = data.language || chrome.i18n.getUILanguage().split('-')[0];
-    document.getElementById('language-selector').value = language === 'ru' ? 'ru' : 'en';
-    updateTranslations(language);
-  });
-}
+// ==================== TOAST ====================
 
-// Обновление текстов на странице
-function updateTranslations(language) {
-  // Загружаем переводы
-  const messages = language === 'ru' ? getRussianTranslations() : getEnglishTranslations();
-  
-  // Обновляем все элементы с атрибутом data-i18n
-  document.querySelectorAll('[data-i18n]').forEach(element => {
-    const key = element.getAttribute('data-i18n');
-    if (messages[key]) {
-      if (element.tagName === 'INPUT' && (element.type === 'button' || element.type === 'submit')) {
-        element.value = messages[key];
-      } else {
-        element.textContent = messages[key];
-      }
-    }
-  });
-  
-  // Обновляем заголовок страницы
-  document.title = messages['appName'] + ' - ' + messages['advancedSettings'];
-}
-
-// Изменение языка
-function changeLanguage() {
-  const language = document.getElementById('language-selector').value;
-  chrome.storage.sync.set({ language: language }, function() {
-    updateTranslations(language);
-    showToast('Language changed successfully!');
-  });
-}
-
-// Показать уведомление (toast)
 function showToast(message, type = 'success') {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.className = 'toast show';
-  
+
   if (type === 'error') {
-    toast.style.background = 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)';
+    toast.style.background = '#1a1a1f';
+    toast.style.borderLeftColor = '#dc4545';
   } else {
-    toast.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    toast.style.background = '#1a1a1f';
+    toast.style.borderLeftColor = '#0d9373';
   }
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
-}
 
-// Временные функции переводов
-function getEnglishTranslations() {
-  return {
-    "appName": "Vision Helper",
-    "advancedSettings": "Advanced Settings",
-    "general": "General",
-    "customCSS": "Custom CSS",
-    "siteManagement": "Site Management",
-    "dataManagement": "Data Management",
-    "keyboardShortcuts": "Keyboard Shortcuts",
-    "toggleDarkMode": "Toggle Dark Mode",
-    "increaseFontSize": "Increase Font Size",
-    "decreaseFontSize": "Decrease Font Size",
-    "statistics": "Usage Statistics",
-    "totalActiveTime": "Total Active Time",
-    "totalSwitches": "Theme Switches",
-    "lastUsed": "Last Used",
-    "resetSettings": "Reset Settings",
-    "resetWarning": "Warning: This will restore all settings to their default values.",
-    "resetToDefaults": "Reset to Defaults",
-    "customCSSTitle": "Custom CSS Rules",
-    "customCSSDescription": "Add your own CSS rules to further customize website appearance. Changes apply to all websites:",
-    "save": "Save CSS",
-    "clear": "Clear",
-    "disabledSites": "Disabled Sites",
-    "disabledSitesDescription": "The extension won't work on these websites:",
-    "addSite": "Add Site",
-    "exportSettings": "Export Settings",
-    "exportDescription": "Export your current settings to a file for backup or transfer:",
-    "exportBtn": "Export Settings",
-    "importSettings": "Import Settings",
-    "importDescription": "Import previously exported settings:",
-    "importBtn": "Import Settings"
-  };
-}
-
-function getRussianTranslations() {
-  return {
-    "appName": "Помощник зрения",
-    "advancedSettings": "Дополнительные настройки",
-    "general": "Общие",
-    "customCSS": "Пользовательский CSS",
-    "siteManagement": "Управление сайтами",
-    "dataManagement": "Управление данными",
-    "keyboardShortcuts": "Горячие клавиши",
-    "toggleDarkMode": "Переключить тёмную тему",
-    "increaseFontSize": "Увеличить размер шрифта",
-    "decreaseFontSize": "Уменьшить размер шрифта",
-    "statistics": "Статистика использования",
-    "totalActiveTime": "Общее время активности",
-    "totalSwitches": "Переключений темы",
-    "lastUsed": "Последнее использование",
-    "resetSettings": "Сброс настроек",
-    "resetWarning": "Внимание: Это восстановит все настройки до значений по умолчанию.",
-    "resetToDefaults": "Сбросить к умолчаниям",
-    "customCSSTitle": "Пользовательские CSS правила",
-    "customCSSDescription": "Добавьте свои CSS правила для дополнительной настройки внешнего вида веб-сайтов. Изменения применяются ко всем сайтам:",
-    "save": "Сохранить CSS",
-    "clear": "Очистить",
-    "disabledSites": "Отключенные сайты",
-    "disabledSitesDescription": "Расширение не будет работать на этих веб-сайтах:",
-    "addSite": "Добавить сайт",
-    "exportSettings": "Экспорт настроек",
-    "exportDescription": "Экспортируйте текущие настройки в файл для резервного копирования или переноса:",
-    "exportBtn": "Экспортировать настройки",
-    "importSettings": "Импорт настроек",
-    "importDescription": "Импортируйте ранее экспортированные настройки:",
-    "importBtn": "Импортировать настройки"
-  };
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }

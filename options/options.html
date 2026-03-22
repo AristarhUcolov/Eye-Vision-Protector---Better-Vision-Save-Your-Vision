@@ -9,26 +9,38 @@
 <body>
   <div class="container">
     <header>
-      <h1 id="app-title">⚙️ Vision Helper - Advanced Settings</h1>
+      <h1 id="app-title">Vision Helper - Advanced Settings</h1>
       <div class="language-switcher">
         <select id="language-selector">
-          <option value="en">🇬🇧 English</option>
-          <option value="ru">🇷🇺 Русский</option>
+          <option value="en">EN English</option>
+          <option value="ru">RU Русский</option>
         </select>
       </div>
     </header>
 
     <div class="tabs">
-      <button class="tab-button active" data-tab="general">📋 <span data-i18n="general">General</span></button>
-      <button class="tab-button" data-tab="custom-css">🎨 <span data-i18n="customCSS">Custom CSS</span></button>
-      <button class="tab-button" data-tab="sites">🌐 <span data-i18n="siteManagement">Site Management</span></button>
-      <button class="tab-button" data-tab="data">💾 <span data-i18n="dataManagement">Data Management</span></button>
+      <button class="tab-button active" data-tab="general">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="general">General</span>
+      </button>
+      <button class="tab-button" data-tab="custom-css">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span data-i18n="customCSS">Custom CSS</span>
+      </button>
+      <button class="tab-button" data-tab="sites">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span data-i18n="siteManagement">Site Management</span>
+      </button>
+      <button class="tab-button" data-tab="data">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span data-i18n="dataManagement">Data Management</span>
+      </button>
     </div>
 
     <!-- General Tab -->
     <div class="tab-content active" id="general">
       <div class="section">
-        <h2 data-i18n="keyboardShortcuts">⌨️ Keyboard Shortcuts</h2>
+        <h2 data-i18n="keyboardShortcuts">Keyboard Shortcuts</h2>
         <div class="shortcuts-grid">
           <div class="shortcut-item">
             <span data-i18n="toggleDarkMode">Toggle Dark Mode</span>
@@ -37,35 +49,47 @@
             </div>
           </div>
           <div class="shortcut-item">
-            <span data-i18n="increaseFontSize">Increase Font Size</span>
+            <span data-i18n="toggleReadingRuler">Toggle Reading Ruler</span>
             <div class="shortcut-keys">
-              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>+</kbd>
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>
             </div>
           </div>
           <div class="shortcut-item">
-            <span data-i18n="decreaseFontSize">Decrease Font Size</span>
+            <span data-i18n="toggleBlueLight">Toggle Blue Light Filter</span>
             <div class="shortcut-keys">
-              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>-</kbd>
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span data-i18n="toggleFocusMode">Toggle Focus Mode</span>
+            <div class="shortcut-keys">
+              <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>
             </div>
           </div>
         </div>
       </div>
 
       <div class="section">
-        <h2 data-i18n="statistics">📊 Usage Statistics</h2>
+        <h2 data-i18n="statistics">Usage Statistics</h2>
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
             <div class="stat-value" id="total-time">0h</div>
             <div class="stat-label" data-i18n="totalActiveTime">Total Active Time</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">🔄</div>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </div>
             <div class="stat-value" id="total-switches">0</div>
             <div class="stat-label" data-i18n="totalSwitches">Theme Switches</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">📅</div>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
             <div class="stat-value" id="last-used">Never</div>
             <div class="stat-label" data-i18n="lastUsed">Last Used</div>
           </div>
@@ -73,7 +97,7 @@
       </div>
 
       <div class="section danger-zone">
-        <h2 data-i18n="resetSettings">🔄 Reset Settings</h2>
+        <h2 data-i18n="resetSettings">Reset Settings</h2>
         <p data-i18n="resetWarning">Warning: This will restore all settings to their default values.</p>
         <button id="reset-settings" class="btn-danger" data-i18n="resetToDefaults">Reset to Defaults</button>
       </div>
@@ -82,14 +106,14 @@
     <!-- Custom CSS Tab -->
     <div class="tab-content" id="custom-css">
       <div class="section">
-        <h2 data-i18n="customCSSTitle">🎨 Custom CSS Rules</h2>
-        <p data-i18n="customCSSDescription">Add your own CSS rules to further customize website appearance. Changes apply to all websites:</p>
+        <h2 data-i18n="customCSSTitle">Custom CSS Rules</h2>
+        <p data-i18n="customCSSDescription">Add your own CSS rules to customize website appearance:</p>
         <div class="css-editor">
-          <textarea id="custom-css-editor" rows="15" placeholder="/* Your custom CSS here */\nbody {\n  /* Example */\n}"></textarea>
+          <textarea id="custom-css-editor" rows="15" placeholder="/* Your custom CSS here */&#10;body {&#10;  /* Example */&#10;}"></textarea>
         </div>
         <div class="button-group">
-          <button id="save-css" class="btn-primary" data-i18n="save">💾 Save CSS</button>
-          <button id="clear-css" class="btn-secondary" data-i18n="clear">🗑️ Clear</button>
+          <button id="save-css" class="btn-primary" data-i18n="save">Save CSS</button>
+          <button id="clear-css" class="btn-secondary" data-i18n="clear">Clear</button>
         </div>
       </div>
     </div>
@@ -97,7 +121,7 @@
     <!-- Site Management Tab -->
     <div class="tab-content" id="sites">
       <div class="section">
-        <h2 data-i18n="disabledSites">🚫 Disabled Sites</h2>
+        <h2 data-i18n="disabledSites">Disabled Sites</h2>
         <p data-i18n="disabledSitesDescription">The extension won't work on these websites:</p>
         <div class="site-list" id="disabled-sites-list">
           <div class="empty-state">
@@ -106,7 +130,7 @@
         </div>
         <div class="add-site-form">
           <input type="text" id="new-site" placeholder="example.com" />
-          <button id="add-site" class="btn-primary" data-i18n="addSite">➕ Add Site</button>
+          <button id="add-site" class="btn-primary" data-i18n="addSite">Add Site</button>
         </div>
       </div>
     </div>
@@ -114,27 +138,28 @@
     <!-- Data Management Tab -->
     <div class="tab-content" id="data">
       <div class="section">
-        <h2 data-i18n="exportSettings">📤 Export Settings</h2>
+        <h2 data-i18n="exportSettings">Export Settings</h2>
         <p data-i18n="exportDescription">Export your current settings to a file for backup or transfer:</p>
-        <button id="export-settings" class="btn-primary" data-i18n="exportBtn">📤 Export Settings</button>
+        <button id="export-settings" class="btn-primary" data-i18n="exportBtn">Export Settings</button>
       </div>
 
       <div class="section">
-        <h2 data-i18n="importSettings">📥 Import Settings</h2>
+        <h2 data-i18n="importSettings">Import Settings</h2>
         <p data-i18n="importDescription">Import previously exported settings:</p>
         <input type="file" id="import-file" accept=".json" style="display: none;" />
-        <button id="import-settings" class="btn-primary" data-i18n="importBtn">📥 Import Settings</button>
+        <button id="import-settings" class="btn-primary" data-i18n="importBtn">Import Settings</button>
       </div>
     </div>
 
     <div class="footer">
-      <p class="version">v1.0.0</p>
-      <p class="copyright">© 2026 Eye Vision Protector</p>
+      <p class="version">v2.0.0</p>
+      <p class="copyright">&copy; 2026 Eye Vision Protector</p>
     </div>
 
     <div id="toast" class="toast"></div>
   </div>
 
+  <script src="../i18n.js"></script>
   <script src="options.js"></script>
 </body>
 </html>
